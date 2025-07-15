@@ -41,6 +41,10 @@ body{
     background-color: white;
 }
 
+a{
+  text-decoration: none;
+  color: black;
+}
 
 input, button {
   font: inherit;
@@ -48,9 +52,17 @@ input, button {
 
 /* --- LAYOUT --- */
 
+.main-containers{
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+
+}
+
 .filters-list_wrapper{
   display: grid;
   grid-template-columns: 0.5fr 1fr;
+  gap: 40px;
 }
 
 /* --- COMPONENTS --- */
@@ -58,6 +70,7 @@ input, button {
   padding: 16px 24px;
   border: 1px solid #8E8E8E;
   border-radius: 12px;
+  cursor: pointer;
 }
 
 .card-title {
@@ -97,5 +110,24 @@ input, button {
 .pagination-buttons_wrapper > button.active{
   background-color: black;
   color: white;
+}
+
+.loader {
+  border: 4px solid #eee;
+  border-top: 4px solid #222222;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.hidden {
+  display: none;
 }
 

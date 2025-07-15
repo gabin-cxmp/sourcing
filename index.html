@@ -1,70 +1,97 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-    <title>WSN | Liste des marques Sourcing</title>
-    <meta property="og:title" content="WSN | Liste de marques Sourcing">
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@0.0.4/dist/fontkit.umd.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
+  <title>WSN | Liste des marques Sourcing</title>
+  <meta property="og:title" content="WSN | Liste de marques Sourcing" />
+
+  <!-- Librairies -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@0.0.4/dist/fontkit.umd.min.js" defer></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css" />
+  
+  <!-- Script principal -->
+  <script src="main.js" defer></script>
 </head>
 <body>
-    <div class="back-to-wsn-button_wrapper">
-        <a href="https://whosnext.com/en">Back to whosnext.com</a>
-    </div>
-    <section id="main">
-        <div class="filters-list_wrapper">
-            <div id="filters-container">
-                <div class="filter-family_container">
-                    <p>Focus</p>
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="Fabrics - Tissus">
-                        <label for="Fabrics - Tissus">Fabrics - Tissus</label>
-                    </div>
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="Embroidery - Broderies">
-                        <label for="Embroidery - Broderies">Embroidery - Broderies</label>
-                    </div>
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="Manufacturing - Fabrication Confection">
-                        <label for="Manufacturing - Fabrication Confection">Manufacturing - Fabrication Confection</label>
-                    </div>
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="Accessories - Accessoires">
-                        <label for="Accessories - Accessoires">Accessories - Accessoires</label>
-                    </div>
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="Lace - Dentelles">
-                        <label for="Lace - Dentelles">Lace - Dentelles</label>
-                    </div>
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="Textile Designers">
-                        <label for="Textile Designers">Textile Designers</label>
-                    </div>
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="Innovation">
-                        <label for="Innovation">Innovation</label>
-                    </div>
-                </div>
-            </div>
-            <div class="searchbar-list_wrapper">
-                <div id="searchbar_wrapper">
-                    <input id="searchInput" type="text" placeholder="Search..">
-                </div>
-                <div>
-                    <p id="noResults" class="hidden">Aucun résultat</p>
-                    <div id="exhibitors-list"></div>
-                </div>
-                <div class="bottom-page_wrapper">
-                    <button id="export-pdf_button" disabled>Export as PDF</button>
-                    <div class="pagination-buttons_wrapper">
-                    </div>
-                </div>
-            </div>
+
+  <!-- PAGE LISTE DES MARQUES -->
+  <main id="list-container" class="main-containers" aria-label="Liste des exposants">
+
+    <nav class="back-to-wsn-button_wrapper" aria-label="Navigation principale">
+      <a href="https://whosnext.com/en" rel="noopener noreferrer">Back to whosnext.com</a>
+    </nav>
+
+    <div class="filters-list_wrapper">
+
+      <!-- Filtres -->
+      <aside id="filters-container" aria-label="Filtres de recherche">
+        <fieldset class="filter-family_container">
+          <legend>Focus</legend>
+
+          <div class="checkbox-container">
+            <input type="checkbox" id="Fabrics - Tissus" name="focus" value="fabrics-tissus" />
+            <label for="Fabrics - Tissus">Fabrics - Tissus</label>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="Embroidery - Broderies" name="focus" value="embroidery-broderies" />
+            <label for="Embroidery - Broderies">Embroidery - Broderies</label>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="Manufacturing - Fabrication Confection" name="focus" value="manufacturing" />
+            <label for="Manufacturing - Fabrication Confection">Manufacturing - Fabrication Confection</label>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="Accessories - Accessoires" name="focus" value="accessories" />
+            <label for="Accessories - Accessoires">Accessories - Accessoires</label>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="Lace - Dentelles" name="focus" value="lace-dentelles" />
+            <label for="Lace - Dentelles">Lace - Dentelles</label>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="Textile Designers" name="focus" value="textile-designers" />
+            <label for="Textile Designers">Textile Designers</label>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="Innovation" name="focus" value="innovation" />
+            <label for="Innovation">Innovation</label>
+          </div>
+
+        </fieldset>
+      </aside>
+
+      <!-- Recherche & Liste -->
+      <section class="searchbar-list_wrapper">
+
+        <div id="searchbar_wrapper" role="search">
+          <input id="searchInput" type="search" placeholder="Search.." autocomplete="off" />
         </div>
-    </section>
-    <script src="main.js"></script>
+
+        <div>
+          <div id="loader" class="loader hidden" aria-live="polite" aria-busy="true" role="status"></div>
+          <p id="noResults" class="hidden" role="alert" aria-live="assertive">Aucun résultat</p>
+          <div id="exhibitors-list" aria-live="polite" aria-atomic="true"></div>
+        </div>
+
+        <footer class="bottom-page_wrapper" aria-label="Navigation pagination et export">
+          <button id="export-pdf_button" disabled aria-disabled="true">Export as PDF</button>
+          <div class="pagination-buttons_wrapper" role="navigation" aria-label="Pagination"></div>
+        </footer>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- PAGE DÉTAILLÉE D'UN EXPOSANT -->
+  <main id="microview-container" class="main-containers" aria-label="Détail exposant">
+    <!-- Ton contenu dynamique ici -->
+  </main>
+
 </body>
 </html>
