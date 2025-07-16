@@ -41,13 +41,29 @@ body{
     background-color: white;
 }
 
+.microview-only #list-container {
+  display: none;
+}
+
+.microview-only #microview-container {
+  display: block;
+}
+
 a{
   text-decoration: none;
   color: black;
+  cursor: pointer;
 }
 
 input, button {
   font: inherit;
+}
+
+.secondary-button{
+  padding: 10px;
+  border: 1px solid black;
+  margin-top: 16px;
+  margin-bottom : 16px;
 }
 
 /* --- LAYOUT --- */
@@ -56,13 +72,14 @@ input, button {
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-
+  padding-top: 24px;
 }
 
 .filters-list_wrapper{
   display: grid;
   grid-template-columns: 0.5fr 1fr;
   gap: 40px;
+  padding-top: 24px;
 }
 
 /* --- COMPONENTS --- */
@@ -70,7 +87,6 @@ input, button {
   padding: 16px 24px;
   border: 1px solid #8E8E8E;
   border-radius: 12px;
-  cursor: pointer;
 }
 
 .card-title {
@@ -80,10 +96,6 @@ input, button {
 
 .hidden {
   display: none;
-}
-
-.block {
-  display: block;
 }
 
 /* --- SEARCHBAR --- */

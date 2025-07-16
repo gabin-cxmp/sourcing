@@ -7,6 +7,11 @@
   <meta property="og:title" content="WSN | Liste de marques Sourcing" />
 
   <!-- Librairies -->
+  <script>
+  if (location.search.includes('supplier-name=')) {
+    document.documentElement.classList.add('microview-only');
+  }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@0.0.4/dist/fontkit.umd.min.js" defer></script>
@@ -23,7 +28,7 @@
   <main id="list-container" class="main-containers" aria-label="Liste des exposants">
 
     <nav class="back-to-wsn-button_wrapper" aria-label="Navigation principale">
-      <a href="https://whosnext.com/en" rel="noopener noreferrer">Back to whosnext.com</a>
+      <a href="https://whosnext.com/en" rel="noopener noreferrer" class="secondary-button">Back to whosnext.com</a>
     </nav>
 
     <div class="filters-list_wrapper">
@@ -74,7 +79,7 @@
 
         <div>
           <div id="loader" class="loader hidden" aria-live="polite" aria-busy="true" role="status"></div>
-          <p id="noResults" class="hidden" role="alert" aria-live="assertive">Aucun résultat</p>
+          <p id="noResults" class="hidden" role="alert" aria-live="assertive">No results</p>
           <div id="exhibitors-list" aria-live="polite" aria-atomic="true"></div>
         </div>
 
@@ -89,9 +94,21 @@
   </main>
 
   <!-- PAGE DÉTAILLÉE D'UN EXPOSANT -->
-  <main id="microview-container" class="main-containers" aria-label="Détail exposant">
+  <main id="microview-container" class="main-containers hidden" aria-label="Détail exposant">
     <!-- Ton contenu dynamique ici -->
-  </main>
+    <a href="#" class="secondary-button" id="back-button_micro">Go back</a>
+    <div id="loader" class="loader hidden" aria-live="polite" aria-busy="true" role="status"></div>
+    <div id="microview-main-content_wrapper" class="hidden">
+      <h2 id="microview-title"></h2>
+      <p id="microview-country"></p>
+      <p id="microview-focus"></p>
+      <div class="certifications_wrapper">
+        <p></p>
+        <ul id="certifications-list"></ul>
+      </div>
+      <a href="" id="microview-contact_button" class="secondary-button">Contact</a>
+    </div>
+  </main> 
 
 </body>
 </html>
