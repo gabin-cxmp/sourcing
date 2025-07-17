@@ -51,9 +51,9 @@ export const exportPDF = async () => {
     pdfDoc.registerFontkit(window.fontkit);
 
     const [boldFontBytes, mediumFontBytes, regularFontBytes] = await Promise.all([
-      fetch('../assets/fonts/theinhardt-bold.otf').then(res => res.arrayBuffer()),
-      fetch('../assets/fonts/theinhardt-medium.otf').then(res => res.arrayBuffer()),
-      fetch('../assets/fonts/theinhardt-regular.otf').then(res => res.arrayBuffer()),
+      fetch('./assets/fonts/theinhardt-bold.otf').then(res => res.arrayBuffer()),
+      fetch('./assets/fonts/theinhardt-medium.otf').then(res => res.arrayBuffer()),
+      fetch('./assets/fonts/theinhardt-regular.otf').then(res => res.arrayBuffer()),
     ]);
 
     const boldFont = await pdfDoc.embedFont(boldFontBytes);
