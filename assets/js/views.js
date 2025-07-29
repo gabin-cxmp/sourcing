@@ -132,8 +132,8 @@ export const renderMicroView = () => {
   DOM.microviewContainer.classList.remove('hidden');
 
   DOM.microviewTitle.textContent = supplierData['Supplier Name'];
-  DOM.microviewCountry.textContent = supplierData['Supplier Country'];
-  DOM.microviewFocus.textContent = supplierData['Focus'];
+  DOM.microviewCountry.textContent = "Country: " + supplierData['Supplier Country'];
+  DOM.microviewFocus.textContent = "Focus: " + supplierData['Focus'];
 
   renderCertifications(supplierData, supplierNorm);
 
