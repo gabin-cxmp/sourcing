@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
-  <title>WSN | Liste des marques Sourcing</title>
+  <title>WSN | Exhibitors List</title>
   <meta property="og:title" content="WSN | Liste de marques Sourcing" />
-
   <!-- Librairies -->
   <script>
   if (location.search.includes('supplier-name=')) {
@@ -17,75 +16,95 @@
   <script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@0.0.4/dist/fontkit.umd.min.js" defer></script>
   <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
-  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Antonio&display=swap" rel="stylesheet">
   <!-- Script principal -->
   <script type="module" src="./assets/js/app.js"></script>
+  <link rel="icon" sizes="16x16" href="assets/favicon/16x16.png" type="image/png">
+  <link rel="icon" sizes="32x32" href="assets/favicon/32x32.png" type="image/png">
 </head>
 <body>
 
+  <div class="nav-wrapper">
+    <a href="https://whosnext.com/">
+      <img src="assets/img/logo-wsn.svg" class="wsn-logo">
+    </a>
+  </div>
   <!-- PAGE LISTE DES MARQUES -->
   <main id="list-container" class="main-containers" aria-label="Liste des exposants">
-
-    <nav class="back-to-wsn-button_wrapper" aria-label="Navigation principale">
-      <a href="https://whosnext.com/en" rel="noopener noreferrer" class="secondary-button">Back to whosnext.com</a>
-    </nav>
+    <div class="title-wrapper">
+      <!--a href="https://whosnext.com/en" rel="noopener noreferrer" class="secondary-button">Back to whosnext.com</a-->
+      <h1>Exhibitors List</h1>
+    </div>
 
     <div class="filters-list_wrapper">
-
       <!-- Filtres -->
       <aside id="filters-container" aria-label="Filtres de recherche">
-        <fieldset class="filter-family_container">
-          <legend>Focus</legend>
-
-          <div class="checkbox-container">
-            <input type="checkbox" id="Fabrics - Tissus" name="focus" value="fabrics-tissus" />
-            <label for="Fabrics - Tissus">Fabrics - Tissus</label>
-          </div>
-          <div class="checkbox-container">
-            <input type="checkbox" id="Embroidery - Broderies" name="focus" value="embroidery-broderies" />
-            <label for="Embroidery - Broderies">Embroidery - Broderies</label>
-          </div>
-          <div class="checkbox-container">
-            <input type="checkbox" id="Manufacturing - Fabrication Confection" name="focus" value="manufacturing" />
-            <label for="Manufacturing - Fabrication Confection">Manufacturing - Fabrication Confection</label>
-          </div>
-          <div class="checkbox-container">
-            <input type="checkbox" id="Accessories - Accessoires" name="focus" value="accessories" />
-            <label for="Accessories - Accessoires">Accessories - Accessoires</label>
-          </div>
-          <div class="checkbox-container">
-            <input type="checkbox" id="Lace - Dentelles" name="focus" value="lace-dentelles" />
-            <label for="Lace - Dentelles">Lace - Dentelles</label>
-          </div>
-          <div class="checkbox-container">
-            <input type="checkbox" id="Textile Designers" name="focus" value="textile-designers" />
-            <label for="Textile Designers">Textile Designers</label>
-          </div>
-          <div class="checkbox-container">
-            <input type="checkbox" id="Innovation" name="focus" value="innovation" />
-            <label for="Innovation">Innovation</label>
-          </div>
-        </fieldset>
-        <fieldset class="filter-family_container">
-          <legend>Sustainability</legend>
-
-          <div class="checkbox-container">
-            <input type="checkbox" id="Recycled" name="sustainability" value="Recycled" />
-            <label for="Recycled">Recycled Products</label>
-          </div>
-          <div class="checkbox-container">
-            <input type="checkbox" id="Handmade" name="sustainability" value="Handmade" />
-            <label for="Handmade">Handmade Products</label>
-          </div>
-          <div class="checkbox-container">
-            <input type="checkbox" id="Organic" name="sustainability" value="Organic" />
-            <label for="Organic">Organic Products</label>
-          </div>
-          <div class="checkbox-container">
-            <input type="checkbox" id="ethical-manufacturing" name="ethical-manufacturing" value="ethical-manufacturing" />
-            <label for="ethical-manufacturing">Ethical Manufacturing</label>
-          </div>
-      </fieldset>
+        <div class="position-sticky">
+          <h2>Filters</h2>
+          <fieldset class="filter-family_container">
+            <div class="filter-dropdown_activator">
+              <legend>Focus</legend>
+              <img src="assets/img/chevron-down.svg" alt="">
+            </div>
+            <div class="checkboxes-container">
+              <div class="checkbox-container">
+                <input type="checkbox" id="Fabrics - Tissus" name="focus" value="fabrics-tissus" />
+                <label for="Fabrics - Tissus">Fabrics - Tissus</label>
+              </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="Embroidery - Broderies" name="focus" value="embroidery-broderies" />
+                <label for="Embroidery - Broderies">Embroidery - Broderies</label>
+              </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="Manufacturing - Fabrication Confection" name="focus" value="manufacturing" />
+                <label for="Manufacturing - Fabrication Confection">Manufacturing - Fabrication Confection</label>
+              </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="Accessories - Accessoires" name="focus" value="accessories" />
+                <label for="Accessories - Accessoires">Accessories - Accessoires</label>
+              </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="Lace - Dentelles" name="focus" value="lace-dentelles" />
+                <label for="Lace - Dentelles">Lace - Dentelles</label>
+              </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="Textile Designers" name="focus" value="textile-designers" />
+                <label for="Textile Designers">Textile Designers</label>
+              </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="Innovation" name="focus" value="innovation" />
+                <label for="Innovation">Innovation</label>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset class="filter-family_container">
+            <div class="filter-dropdown_activator">
+              <legend>Sustainability</legend>
+              <img src="assets/img/chevron-down.svg" alt="">
+            </div>
+            <div class="checkboxes-container">
+              <div class="checkbox-container">
+                <input type="checkbox" id="Recycled" name="sustainability" value="Recycled" />
+                <label for="Recycled">Recycled Products</label>
+              </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="Handmade" name="sustainability" value="Handmade" />
+                <label for="Handmade">Handmade Products</label>
+              </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="Organic" name="sustainability" value="Organic" />
+                <label for="Organic">Organic Products</label>
+              </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="ethical-manufacturing" name="ethical-manufacturing" value="ethical-manufacturing" />
+                <label for="ethical-manufacturing">Ethical Manufacturing</label>
+              </div>
+            </div>
+          </fieldset>
+          <button id="export-pdf_button" class="primary-button" disabled aria-disabled="true">Export results as PDF</button>
+        </div>
       </aside>
 
       <!-- Recherche & Liste -->
@@ -97,12 +116,13 @@
 
         <div>
           <div id="loader" class="loader hidden" aria-live="polite" aria-busy="true" role="status"></div>
-          <p id="noResults" class="hidden" role="alert" aria-live="assertive">No results</p>
+          <div id="noResults" class="hidden" role="alert">
+            <p>Oops! We couldn't find any results matching your search.</p>
+          </div>
           <div id="exhibitors-list" aria-live="polite" aria-atomic="true"></div>
         </div>
 
         <footer class="bottom-page_wrapper" aria-label="Navigation pagination et export">
-          <button id="export-pdf_button" disabled aria-disabled="true">Export as PDF</button>
           <div class="pagination-buttons_wrapper" role="navigation" aria-label="Pagination"></div>
         </footer>
 
@@ -114,17 +134,22 @@
   <!-- PAGE DÉTAILLÉE D'UN EXPOSANT -->
   <main id="microview-container" class="main-containers hidden" aria-label="Détail exposant">
     <!-- Ton contenu dynamique ici -->
-    <a class="secondary-button" id="back-button_micro">Go back</a>
+    <a class="secondary-button" id="back-button_micro">Back</a>
     <div id="loader" class="loader hidden" aria-live="polite" aria-busy="true" role="status"></div>
     <div id="microview-main-content_wrapper" class="hidden">
-      <h2 id="microview-title"></h2>
-      <p id="microview-country"></p>
       <p id="microview-focus"></p>
+      <h3 id="microview-title"></h3>
       <div class="certifications_wrapper">
         <p></p>
         <ul id="certifications-list"></ul>
       </div>
-      <a href="" id="microview-contact_button" class="secondary-button hidden">Contact</a>
+      <div class="microview_specifications-wrapper">
+        <div class="microview_country-wrapper">
+          <span>Country</span>
+          <p id="microview-country"></p>
+        </div>
+      </div>
+      <a href="" id="microview-contact_button" class="primary-button hidden">Contact</a>
     </div>
   </main> 
 

@@ -78,5 +78,7 @@ export const updatePagination = () => {
   const pageData = STATE.filteredData.slice(start, end);
   renderExhibitorsList(pageData);
   renderPagination(STATE.filteredData.length, STATE.currentPage);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 30); // 30-50ms est en général suffisant
 };
