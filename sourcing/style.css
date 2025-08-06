@@ -102,6 +102,7 @@ legend{
 }
 
 /* ===== UTILITY CLASSES ===== */
+
 .primary-button {
   font-weight: 500;
   background-color: #222222;
@@ -277,7 +278,7 @@ legend{
 }
 
 .card-see-more > img {
-  width: 12px;
+  width: 18px;
 }
 
 /* Searchbar */
@@ -364,11 +365,6 @@ input::placeholder {
   display: block;
 }
 
-#microview-container{
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
 
 #microview-title{
   font-size: 40px;
@@ -392,17 +388,17 @@ input::placeholder {
   margin-bottom: 40px;
 }
 
-.microview_country-wrapper{
+.microview_details-wrapper{
   display: flex;
   flex-direction: column;
 }
 
-.microview_country-wrapper > span{
+.microview_details-wrapper > span{
   text-transform: uppercase;
   font-weight: 600;
 }
 
-.microview_country-wrapper > p {
+.microview_details-wrapper > p {
   color: #8E8E8E;
 }
 
@@ -413,9 +409,27 @@ input::placeholder {
 /* Tags */
 #certifications-list > li {
   font-size: 14px;
-  padding: 0px 10px;
+  padding: 4px 10px; /* Padding vertical plus uniforme */
   border-radius: 100px;
   border: 1px solid;
+  
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  vertical-align: top;
+  
+  /* Rendu de font uniforme Mac/Windows */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1;
+  
+  /* Box model uniforme */
+  box-sizing: border-box;
+  
+  /* Éviter les décalages de baseline */
+  font-variant: normal;
+  text-rendering: optimizeLegibility;
 }
 
 li.company{
@@ -425,9 +439,9 @@ li.company{
 }
 
 li.raw{
-  color: #00CC44;
+  color: #01b33c;
   background-color: #E0FFEA;
-  border-color: #00CC44;
+  border-color: #01b33c;
 }
 
 li.handmade{
@@ -446,6 +460,12 @@ li.organic{
   color: #FF7539;
   background-color: #FFEAE0;
   border-color: #FF7539;
+}
+
+li.limited{
+  color: #AD39FF;
+  background-color: #F2E0FF;
+  border-color: #AD39FF;
 }
 
 /* Checkbox */
