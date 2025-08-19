@@ -1,6 +1,7 @@
 import { DOM, CONFIG } from './constants.js';
 import { STATE } from './state.js';
 import { normalizeStr, getUrlParam, updatePagination } from './utils.js';
+import { getProductsForSupplier } from './utils.js';
 
 export const createExhibitorCard = (item) => {
   const container = document.createElement('div');
@@ -25,7 +26,7 @@ export const createExhibitorCard = (item) => {
   seeMore.classList.add('card-see-more');
 
   const plusIcon = document.createElement('img');
-  plusIcon.setAttribute("src", "assets/img/plus-icon.svg");
+  plusIcon.setAttribute("src", "assets/img/chevron-right.svg");
 
   seeMore.addEventListener('click', (e) => {
     e.preventDefault();
@@ -43,13 +44,11 @@ export const createExhibitorCard = (item) => {
 export const renderExhibitorsList = (data) => {
   const container = DOM.exhibitorsList;
 
-  // Étape 1 : fade-out des cartes existantes
   const oldCards = Array.from(container.children);
   oldCards.forEach(card => {
     card.classList.add('hidden-out');
   });
 
-  // Étape 2 : après l'animation (~300ms), on remplace les cartes
   setTimeout(() => {
     container.innerHTML = '';
 
@@ -57,13 +56,12 @@ export const renderExhibitorsList = (data) => {
 
     data.forEach(item => {
       const card = createExhibitorCard(item);
-      card.classList.add('hidden-initial'); // start caché
+      card.classList.add('hidden-initial');
       fragment.appendChild(card);
     });
 
     container.appendChild(fragment);
 
-    // Étape 3 : déclenche animation d'entrée
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         const newCards = Array.from(container.children);
@@ -71,9 +69,8 @@ export const renderExhibitorsList = (data) => {
       });
     });
 
-  }, 300); // doit correspondre au duration CSS
+  }, 300);
 };
-
 
 export const renderPagination = (totalItems, currentPage) => {
   DOM.paginationButtonsWrapper.innerHTML = '';
@@ -91,7 +88,6 @@ export const renderPagination = (totalItems, currentPage) => {
     return btn;
   };
 
-  // Back Button
   DOM.paginationButtonsWrapper.appendChild(
     createButton('Back', currentPage === 1, () => {
       if (currentPage > 1) {
@@ -101,11 +97,10 @@ export const renderPagination = (totalItems, currentPage) => {
     })
   );
 
-  // Container for number buttons
   const numberButtonsContainer = document.createElement('div');
   numberButtonsContainer.className = 'number-buttons';
 
-  const maxVisiblePages = 5;
+  const maxVisiblePages = window.matchMedia("(width <= 500px)").matches === false ? 5 : 3;
   let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
   let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
@@ -142,10 +137,8 @@ export const renderPagination = (totalItems, currentPage) => {
     }));
   }
 
-  // Ajoute le conteneur des boutons numérotés au wrapper
   DOM.paginationButtonsWrapper.appendChild(numberButtonsContainer);
 
-  // Next Button
   DOM.paginationButtonsWrapper.appendChild(
     createButton('Next', currentPage === totalPages, () => {
       if (currentPage < totalPages) {
@@ -155,7 +148,6 @@ export const renderPagination = (totalItems, currentPage) => {
     })
   );
 };
-
 
 export const renderMicroView = () => {
   const supplierParam = getUrlParam('supplier-name');
@@ -177,28 +169,22 @@ export const renderMicroView = () => {
 
   STATE.currentSupplier = supplierData;
 
-  // 1. Cache la liste avec transition (si souhaité)
   DOM.listContainer.classList.add('hidden');
 
-  // 2. Prépare la microview pour animation
   const microview = DOM.microviewContainer;
-  microview.classList.add('hidden-anim');
+
   microview.classList.remove('hidden');
 
-  // 3. Lancer animation au frame suivant
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      microview.classList.remove('hidden-anim');
-    });
-  });
-
-  // 4. Remplir les données
   DOM.microviewContactButton.classList.add('hidden');
   DOM.microviewTitle.textContent = supplierData['Supplier Name'];
   DOM.microviewCountry.textContent = supplierData['Supplier Country'];
   DOM.microviewFocus.textContent = supplierData['Focus'];
 
-  renderCertifications(supplierData, supplierNorm);
+  const products = getProductsForSupplier(supplierData['Supplier Name'], STATE.allData);
+
+  renderCertifications(supplierData, products);
+
+  renderMicroviewProductDetails(products);
 
   if (supplierData['Email']) {
     DOM.microviewContactButton.classList.remove('hidden');
@@ -222,26 +208,22 @@ export const renderMicroView = () => {
   };
 };
 
-
 export const hideMicroView = () => {
   DOM.listContainer.classList.remove('hidden');
   DOM.microviewContainer.classList.add('hidden');
   STATE.currentSupplier = null;
 };
 
-const renderCertifications = (supplierData, supplierNorm) => {
+const renderCertifications = (supplierData, products) => {
   DOM.certificationsList.innerHTML = '';
-  const startIndex = STATE.allData.findIndex(item =>
-    normalizeStr(item['Supplier Name']) === supplierNorm
-  );
-  const products = STATE.allData.slice(startIndex, startIndex + CONFIG.itemsPerPage);
-
   const addedCertifications = new Set();
+
   let hasHandmade = false;
   let hasRecycled = false;
   let hasOrganic = false;
+  let hasWhiteLabel = false;
+  let hasLimitedEdition = false;
 
-  // Company Certifications
   const companyCertKey = Object.keys(supplierData).find(
     key => key.toLowerCase().includes('company certifications')
   );
@@ -255,7 +237,6 @@ const renderCertifications = (supplierData, supplierNorm) => {
     });
   }
 
-  // Product-level certifications
   products.forEach(prod => {
     const certVal = prod['Raw Material Certfications (if applicable)'];
     if (certVal) {
@@ -274,12 +255,21 @@ const renderCertifications = (supplierData, supplierNorm) => {
       if (ecoVal.includes('recycled')) hasRecycled = true;
       if (ecoVal.includes('organic')) hasOrganic = true;
     }
+
+    if (prod["Is this product available as Private Label/White Label service?"]?.toLowerCase() === 'yes') {
+      hasWhiteLabel = true;
+    }
+
+    if (prod["Is this product a limited edition?"]?.toLowerCase() === 'yes') {
+      hasLimitedEdition = true;
+    }
   });
 
-  // Add virtual certifications
   if (hasHandmade) addedCertifications.add('handmade|Handmade');
   if (hasRecycled) addedCertifications.add('recycled|Recycled');
   if (hasOrganic) addedCertifications.add('organic|Organic');
+  if (hasWhiteLabel) addedCertifications.add('white|White Label');
+  if (hasLimitedEdition) addedCertifications.add('limited|Limited Edition');
 
   addedCertifications.forEach(entry => {
     const [type, text] = entry.split('|');
@@ -287,17 +277,60 @@ const renderCertifications = (supplierData, supplierNorm) => {
   });
 };
 
-
 const createCertificationItem = (text, type) => {
   const li = document.createElement('li');
   li.textContent = text;
 
-  // Ajoute la classe selon le type
   if (type) {
     li.classList.add(type);
   }
 
   return li;
+};
+
+const renderMicroviewProductDetails = (products) => {
+  const capitalize = (str) => {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
+  const transformValue = (val) => {
+    return val
+      .toLowerCase()
+      .split(' ')
+      .map(capitalize)
+      .join(' ');
+  };
+
+  const updateField = (id, fieldName) => {
+    const values = [
+      ...new Set(
+        products
+          .map(p => p[fieldName])
+          .filter(Boolean)
+          .flatMap(v => v.split(',').map(s => s.trim()).filter(Boolean))
+          .map(transformValue)
+      )
+    ];
+
+    const el = document.getElementById(id);
+    const parent = el?.parentElement;
+    if (!el || !parent) return;
+
+    if (!values.length) {
+      parent.style.display = 'none';
+    } else {
+      el.textContent = values.join(' - ');
+      parent.style.display = '';
+    }
+  };
+
+  updateField('microview-type', 'Product type');
+  updateField('microview-material', 'Product Material - Main Composition');
+  updateField('microview-material-secondary', 'Product Material - Secondary Composition (if applicable)');
+  updateField('microview-specification', 'Product specifications (if applicable)');
+  updateField('microview-finishing', 'Product Finishing (if applicable)');
+  updateField('microview-volumes', 'Production volumes');
 };
 
 

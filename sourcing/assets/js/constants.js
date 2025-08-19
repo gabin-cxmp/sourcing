@@ -6,7 +6,7 @@ export const CONFIG = {
     'https://docs.google.com/spreadsheets/d/e/2PACX-1vQFMnAIVzcRLBXNXvNPcoDe3fmWeRXteipd6O5qvwOADkRcDc4VuF7dWuqP5s7HEFOif0eykCQM4hYm/pub?gid=0&single=true&output=csv',
     'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIjq-iOQA2VUcdOIWXL1VhZXZ_OWnwSbhApfoN1U8mTMSeIBLiFO8TzEIKLLFjeHrgVqpbQDxJuKrx/pub?gid=0&single=true&output=csv'
   ],
-  specialFilters: ['handmade', 'recycled', 'organic', 'ethical-manufacturing']
+  specialFilters: ['handmade', 'recycled', 'organic', 'ethical-manufacturing', 'limited-edition', 'white-label']
 };
 
 export const DOM = {

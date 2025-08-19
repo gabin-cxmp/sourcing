@@ -92,29 +92,20 @@ export const exportPDF = async () => {
       ['STAND', '', 'stand'],
     ];
 
-    // Calculate column widths
-    const nameColMaxWidth = Math.max(
-      boldFont.widthOfTextAtSize(headers[0][0], 10),
-      mediumFont.widthOfTextAtSize(headers[0][1], 8),
-      ...formattedData.map(d => regularFont.widthOfTextAtSize(d.name || '', 9))
-    ) + padding * 2;
-
-    const sectorColMaxWidth = Math.max(
-      boldFont.widthOfTextAtSize(headers[2][0], 10),
-      mediumFont.widthOfTextAtSize(headers[2][1], 8),
-      ...formattedData.map(d => regularFont.widthOfTextAtSize(d.focus || '', 9))
-    ) + padding * 2;
-
-    const standColFixedWidth = regularFont.widthOfTextAtSize('WWWWWW', 9) + padding * 2;
+    // ✅ Largeurs égales
     const usableWidth = pageWidth - marginX * 2;
-    const countryColWidth = usableWidth - nameColMaxWidth - sectorColMaxWidth - standColFixedWidth;
+    const equalColWidth = usableWidth / headers.length;
+    const columnWidths = Array(headers.length).fill(equalColWidth);
 
-    const columnWidths = [
-      nameColMaxWidth,
-      countryColWidth,
-      sectorColMaxWidth,
-      standColFixedWidth
-    ];
+    // 🔹 Fonction utilitaire : tronquer le texte s'il dépasse
+    const truncateText = (text, font, fontSize, maxWidth) => {
+      let truncated = text;
+      while (font.widthOfTextAtSize(truncated, fontSize) > maxWidth) {
+        if (truncated.length <= 1) break;
+        truncated = truncated.slice(0, -2) + '…';
+      }
+      return truncated;
+    };
 
     const drawHeader = () => {
       let x = marginX;
@@ -165,11 +156,17 @@ export const exportPDF = async () => {
       let x = marginX;
 
       headers.forEach(([_, __, key], i) => {
-        const text = item[key] || '';
+        let text = item[key] || '';
+        const maxTextWidth = columnWidths[i] - padding * 2;
+
+        // 🔹 Tronquer si ça dépasse la largeur
+        text = truncateText(text, regularFont, tableFontSize, maxTextWidth);
         const textWidth = regularFont.widthOfTextAtSize(text, tableFontSize);
-        
+
         page.drawText(text, {
-          x: i === 3 ? x + columnWidths[i] - padding - textWidth : x + padding,
+          x: i === headers.length - 1
+            ? x + columnWidths[i] - padding - textWidth // align right dernier col
+            : x + padding, // align left autres col
           y: y + 3,
           size: tableFontSize,
           font: regularFont,
@@ -206,3 +203,4 @@ export const exportPDF = async () => {
     alert('An error occurred while generating the PDF');
   }
 };
+
