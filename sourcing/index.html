@@ -27,7 +27,7 @@
 <body>
 
   <div class="nav-wrapper">
-    <a href="https://whosnext.com/">
+    <a href="/sourcing">
       <img src="assets/img/logo-wsn.svg" class="wsn-logo">
     </a>
   </div>
@@ -101,9 +101,19 @@
                 <input type="checkbox" id="ethical-manufacturing" name="ethical-manufacturing" value="ethical-manufacturing" />
                 <label for="ethical-manufacturing">Ethical Manufacturing</label>
               </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="limited-edition" name="sustainability" value="limited-edition" />
+                <label for="limited-edition">Limited Edition</label>
+              </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="white-label" name="sustainability" value="white-label" />
+                <label for="white-label">White Label</label>
+              </div>
             </div>
           </fieldset>
-          <button id="export-pdf_button" class="primary-button" disabled aria-disabled="true">Export results as PDF</button>
+          <div class="export-button_container">
+            <button id="export-pdf_button" class="primary-button" disabled aria-disabled="true">Export results as PDF</button>
+          </div>
         </div>
       </aside>
 
@@ -111,7 +121,7 @@
       <section class="searchbar-list_wrapper">
 
         <div id="searchbar_wrapper" role="search">
-          <input id="searchInput" type="search" placeholder="Find your supplier" autocomplete="off" />
+          <input id="searchInput" type="search" placeholder="Find your supplier - try names or product types" autocomplete="off" />
         </div>
 
         <div>
@@ -133,23 +143,56 @@
 
   <!-- PAGE DÉTAILLÉE D'UN EXPOSANT -->
   <main id="microview-container" class="main-containers hidden" aria-label="Détail exposant">
-    <!-- Ton contenu dynamique ici -->
-    <a class="secondary-button" id="back-button_micro">Back</a>
+    <a class="back-button" id="back-button_micro">
+      <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15.8786 18.961L9.8786 12.961L15.8786 6.96102" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <p>Back</p>
+    </a>
     <div id="loader" class="loader hidden" aria-live="polite" aria-busy="true" role="status"></div>
     <div id="microview-main-content_wrapper" class="hidden">
-      <p id="microview-focus"></p>
-      <h3 id="microview-title"></h3>
-      <div class="certifications_wrapper">
-        <p></p>
-        <ul id="certifications-list"></ul>
+      <div class="microview-header_wrapper">
+        <div>
+          <p id="microview-focus"></p>
+          <h3 id="microview-title"></h3>
+          <div class="certifications_wrapper">
+            <p></p>
+            <ul id="certifications-list"></ul>
+          </div>
+        </div>
+        <a href="" id="microview-contact_button" class="primary-button hidden">Contact</a>
       </div>
+      <div class="divider"></div>
       <div class="microview_specifications-wrapper">
-        <div class="microview_country-wrapper">
+        <div class="microview_details-wrapper">
           <span>Country</span>
           <p id="microview-country"></p>
         </div>
+        <div class="microview_details-wrapper">
+          <span>Product Type</span>
+          <p id="microview-type"></p>
+        </div>
+        <div class="microview_details-wrapper">
+          <span>Production Volumes</span>
+          <p id="microview-volumes"></p>
+        </div>
+        <div class="microview_details-wrapper">
+          <span>Product Material (main)</span>
+          <p id="microview-material"></p>
+        </div>
+        <div class="microview_details-wrapper">
+          <span>Product Material (secondary)</span>
+          <p id="microview-material-secondary"></p>
+        </div>
+        <div class="microview_details-wrapper">
+          <span>Product Specification (if applicable)</span>
+          <p id="microview-specification"></p>
+        </div>
+        <div class="microview_details-wrapper">
+          <span>Product Finishing (if applicable)</span>
+          <p id="microview-finishing"></p>
+        </div>
       </div>
-      <a href="" id="microview-contact_button" class="primary-button hidden">Contact</a>
     </div>
   </main> 
 
