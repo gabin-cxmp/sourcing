@@ -336,10 +336,10 @@ const renderMicroviewProductDetails = (products) => {
 
 DOM.filterDropdownActivator.forEach(activator => {
   const container = activator.nextElementSibling;
-
+  const arrow = activator.children[1];
   activator.addEventListener('click', () => {
     const isOpen = container.style.height !== '0px' && container.style.height !== '';
-
     container.style.height = isOpen ? '0px' : container.scrollHeight + 'px';
+    arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(-180deg)';
   });
 });
