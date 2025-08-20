@@ -218,6 +218,7 @@ legend{
 
 .filter-dropdown_activator > img {
   width: 16px;
+  transition: transform 0.25s ease;
 }
 
 .checkboxes-container{
