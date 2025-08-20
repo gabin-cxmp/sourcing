@@ -39,7 +39,7 @@ export const applyFilters = () => {
       const startIndex = STATE.allData.findIndex(item =>
         normalizeStr(item['Supplier Name']) === nameNorm
       );
-      const products = STATE.allData.slice(startIndex, startIndex + CONFIG.itemsPerPage);
+      const products = STATE.allData.slice(startIndex, startIndex + 19);
       
       // Chercher dans les Product Types des produits
       matchesSearch = products.some(product => {
@@ -53,7 +53,7 @@ export const applyFilters = () => {
     const startIndex = STATE.allData.findIndex(item =>
       normalizeStr(item['Supplier Name']) === nameNorm
     );
-    const products = STATE.allData.slice(startIndex, startIndex + CONFIG.itemsPerPage);
+    const products = STATE.allData.slice(startIndex, startIndex + 19);
 
     const specialFilterResults = {
       handmade: !selectedCheckboxes.includes('handmade'),
