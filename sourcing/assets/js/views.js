@@ -150,6 +150,7 @@ export const renderPagination = (totalItems, currentPage) => {
 };
 
 export const renderMicroView = () => {
+
   const supplierParam = getUrlParam('supplier-name');
   if (!supplierParam) {
     hideMicroView();
@@ -185,6 +186,8 @@ export const renderMicroView = () => {
   renderCertifications(supplierData, products);
 
   renderMicroviewProductDetails(products);
+
+  window.scrollTo({ top: 0});
 
   if (supplierData['Email']) {
     DOM.microviewContactButton.classList.remove('hidden');
