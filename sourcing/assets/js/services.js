@@ -45,13 +45,13 @@ export const exportPDF = async () => {
     const formattedData = dataToExport.map((item, idx) => ({
       number: idx + 1,
       name: item['Supplier Name'].toUpperCase(),
-      focus: item['Focus'],
+      category: item['Main Product Category'],
       country: item['Supplier Country'],
       stand: item['Stand Number'] || ''
     }));
 
     const { PDFDocument, rgb } = PDFLib;
-    const pdfDoc = await PDFLib.PDFDocument.create();
+    const pdfDoc = await PDFDocument.create();
     pdfDoc.registerFontkit(window.fontkit);
 
     const [boldFontBytes, mediumFontBytes, regularFontBytes] = await Promise.all([
@@ -88,16 +88,16 @@ export const exportPDF = async () => {
     const headers = [
       ['EXHIBITOR', 'EXPOSANT', 'name'],
       ['COUNTRY', 'PAYS', 'country'],
-      ['SECTOR', 'SECTEUR', 'focus'],
+      ['CATEGORY', 'Categorie', 'category'],
       ['STAND', '', 'stand'],
     ];
 
-    // ✅ Largeurs égales
+    // Largeurs égales
     const usableWidth = pageWidth - marginX * 2;
     const equalColWidth = usableWidth / headers.length;
     const columnWidths = Array(headers.length).fill(equalColWidth);
 
-    // 🔹 Fonction utilitaire : tronquer le texte s'il dépasse
+    // Tronquer le texte s'il dépasse
     const truncateText = (text, font, fontSize, maxWidth) => {
       let truncated = text;
       while (font.widthOfTextAtSize(truncated, fontSize) > maxWidth) {
@@ -109,7 +109,6 @@ export const exportPDF = async () => {
 
     const drawHeader = () => {
       let x = marginX;
-
       headers.forEach(([en, fr], i) => {
         page.drawText(en, {
           x: x + padding,
@@ -118,7 +117,6 @@ export const exportPDF = async () => {
           font: boldFont,
           color: rgb(0, 0, 0),
         });
-
         if (fr) {
           page.drawText(fr, {
             x: x + padding,
@@ -128,10 +126,8 @@ export const exportPDF = async () => {
             color: rgb(0.4, 0.4, 0.4),
           });
         }
-
         x += columnWidths[i];
       });
-
       y -= 35;
 
       page.drawLine({
@@ -158,15 +154,14 @@ export const exportPDF = async () => {
       headers.forEach(([_, __, key], i) => {
         let text = item[key] || '';
         const maxTextWidth = columnWidths[i] - padding * 2;
-
-        // 🔹 Tronquer si ça dépasse la largeur
         text = truncateText(text, regularFont, tableFontSize, maxTextWidth);
         const textWidth = regularFont.widthOfTextAtSize(text, tableFontSize);
 
+        // 🔹 Correct alignement pour la dernière colonne
+        const textX = x + padding;
+
         page.drawText(text, {
-          x: i === headers.length - 1
-            ? x + columnWidths[i] - padding - textWidth // align right dernier col
-            : x + padding, // align left autres col
+          x: textX,
           y: y + 3,
           size: tableFontSize,
           font: regularFont,

@@ -1,4 +1,5 @@
-import { CONFIG, DOM } from './constants.js';
+/* utils.js */
+import { CONFIG, DOM, MADE_IN_VALUES } from './constants.js';
 import { STATE } from './state.js';
 import { renderExhibitorsList, renderPagination } from './views.js';
 
@@ -14,6 +15,29 @@ export const debounce = (func, delay) => {
 
 export const getUrlParam = (param) => new URLSearchParams(window.location.search).get(param);
 
+export const generateMadeInCheckboxes = (container) => {
+  MADE_IN_VALUES.forEach(country => {
+    const checkboxContainer = document.createElement('div');
+    checkboxContainer.className = 'checkbox-container';
+    
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = country;
+    checkbox.name = 'made-in';
+    checkbox.value = country.toLowerCase();
+    
+    const label = document.createElement('label');
+    label.setAttribute('for', country);
+    label.textContent = country;
+    
+    checkboxContainer.appendChild(checkbox);
+    checkboxContainer.appendChild(label);
+    container.appendChild(checkboxContainer);
+  });
+};
+
+
+// Fonction applyFilters modifiée pour inclure les filtres "Made In"
 export const applyFilters = () => {
   DOM.noResults.classList.add('hidden');
   STATE.currentPage = 1;
@@ -22,39 +46,45 @@ export const applyFilters = () => {
     .filter(cb => cb.checked)
     .map(cb => cb.id.toLowerCase());
 
-  const focusFilters = selectedCheckboxes.filter(id => !CONFIG.specialFilters.includes(id));
+  // Récupérer les filtres "Made In" sélectionnés
+  const madeInFilters = Array.from(document.querySelectorAll('input[name="made-in"]:checked'))
+    .map(cb => normalizeStr(cb.value.trim())); // toujours clean
 
-  // Récupérer la valeur de recherche une seule fois
+  const categoryFilters = selectedCheckboxes.filter(id => !CONFIG.specialFilters.includes(id));
+
   const searchValue = normalizeStr(DOM.searchInput.value.trim());
 
   STATE.filteredData = STATE.exhibitorsOnly.filter(exhibitor => {
     const nameNorm = normalizeStr(exhibitor['Supplier Name']);
-    const focusNorm = normalizeStr(exhibitor['Focus']);
+    const categoryNorm = normalizeStr(exhibitor['Main Product Category']);
 
-    // Recherche étendue : nom d'exposant + Product Types de ses produits
+    // Recherche étendue : nom d'exposant + Product Types
     let matchesSearch = !searchValue || nameNorm.includes(searchValue);
     
-    // Si la recherche ne match pas le nom, vérifier les Product Types des produits
     if (!matchesSearch && searchValue) {
-      const startIndex = STATE.allData.findIndex(item =>
-        normalizeStr(item['Supplier Name']) === nameNorm
-      );
-      const products = STATE.allData.slice(startIndex, startIndex + 19);
-      
-      // Chercher dans les Product Types des produits
+      const products = getProductsForSupplier(exhibitor['Supplier Name'], STATE.allData, 19);
       matchesSearch = products.some(product => {
         const productType = normalizeStr(product['Product type'] || '');
         return productType.includes(searchValue);
       });
     }
 
-    const matchesFocus = focusFilters.length === 0 || focusFilters.includes(focusNorm);
+    const matchesCategory = categoryFilters.length === 0 || categoryFilters.includes(categoryNorm);
 
-    const startIndex = STATE.allData.findIndex(item =>
-      normalizeStr(item['Supplier Name']) === nameNorm
-    );
-    const products = STATE.allData.slice(startIndex, startIndex + 19);
+    // Récupérer les produits de ce fournisseur pour tous les filtres
+    const products = getProductsForSupplier(exhibitor['Supplier Name'], STATE.allData, 19);
 
+    // Vérifier les filtres "Made In"
+    let matchesMadeIn = madeInFilters.length === 0;
+    if (!matchesMadeIn) {
+      matchesMadeIn = products.some(product => {
+        const productMadeIn = normalizeStr((product['Made in'] || '').trim());
+        // includes pour tolérer "Made in China", "China Mainland", etc.
+        return madeInFilters.some(filter => productMadeIn.includes(filter));
+      });
+    }
+
+    // Filtres spéciaux existants
     const specialFilterResults = {
       handmade: !selectedCheckboxes.includes('handmade'),
       recycled: !selectedCheckboxes.includes('recycled'),
@@ -82,7 +112,8 @@ export const applyFilters = () => {
     }
 
     return matchesSearch &&
-      matchesFocus &&
+      matchesCategory &&
+      matchesMadeIn &&
       specialFilterResults.handmade &&
       specialFilterResults.recycled &&
       specialFilterResults.organic &&
@@ -98,11 +129,12 @@ export const applyFilters = () => {
   // Activer le bouton PDF si au moins une checkbox est cochée OU si au moins 3 caractères sont tapés dans la search
   const rawSearchValue = DOM.searchInput.value.trim();
   const hasValidSearch = rawSearchValue.length >= 3;
-  const hasSelectedFilters = selectedCheckboxes.length > 0;
+  const hasSelectedFilters = selectedCheckboxes.length > 0 || madeInFilters.length > 0;
   
   DOM.exportPDFButton.disabled = !(hasValidSearch || hasSelectedFilters) || STATE.filteredData.length === 0;
   updatePagination();
 };
+
 
 export const updatePagination = () => {
   const start = (STATE.currentPage - 1) * CONFIG.itemsPerPage;

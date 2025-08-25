@@ -1,7 +1,34 @@
+/* view.js */
 import { DOM, CONFIG } from './constants.js';
 import { STATE } from './state.js';
 import { normalizeStr, getUrlParam, updatePagination } from './utils.js';
-import { getProductsForSupplier } from './utils.js';
+import { generateMadeInCheckboxes, applyFilters, getProductsForSupplier } from './utils.js';
+
+// Fonction d'initialisation à ajouter dans views.js
+export const initializeMadeInFilters = () => {
+  
+  if (DOM.madeInContainer) {
+    generateMadeInCheckboxes(DOM.madeInContainer.children[1]);
+    
+    const madeInCheckboxes = DOM.madeInContainer.querySelectorAll('input[name="made-in"]');
+    madeInCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', applyFilters);
+    });
+
+    const madeInDropdown = document.querySelector('fieldset:last-child .filter-dropdown_activator');
+    if (madeInDropdown) {
+      const container = madeInDropdown.nextElementSibling;
+      const arrow = madeInDropdown.querySelector('img');
+      
+      madeInDropdown.addEventListener('click', () => {
+        const isOpen = container.style.height !== '0px' && container.style.height !== '';
+        container.style.height = isOpen ? '0px' : container.scrollHeight + 'px';
+        arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(-180deg)';
+      });
+    }
+  }
+
+};
 
 export const createExhibitorCard = (item) => {
   const container = document.createElement('div');
@@ -19,8 +46,19 @@ export const createExhibitorCard = (item) => {
   country.classList.add('card-country');
   country.textContent = item['Supplier Country'];
 
+  const focusAndCategory = document.createElement('div');
+  focusAndCategory.classList.add('focus-and-category');
+
   const focus = document.createElement('p');
   focus.textContent = item['Focus'];
+
+  const category = document.createElement('p');
+  category.textContent = item['Main Product Category'];
+
+  const span = document.createElement('span');
+  span.textContent = focus.textContent != '' && category.textContent != '' ? '>' : '';
+
+  focusAndCategory.append(focus, span, category)
 
   const seeMore = document.createElement('a');
   seeMore.classList.add('card-see-more');
@@ -34,7 +72,7 @@ export const createExhibitorCard = (item) => {
     renderMicroView();
   });
 
-  contentContainer.append(title, country, focus);
+  contentContainer.append(title, country, focusAndCategory);
   seeMore.append(plusIcon);
 
   container.append(contentContainer, seeMore);
@@ -172,6 +210,8 @@ export const renderMicroView = () => {
 
   STATE.currentSupplier = supplierData;
 
+  console.log(STATE.currentSupplier);
+
   DOM.listContainer.classList.add('hidden');
 
   const microview = DOM.microviewContainer;
@@ -180,8 +220,14 @@ export const renderMicroView = () => {
 
   DOM.microviewContactButton.classList.add('hidden');
   DOM.microviewTitle.textContent = supplierData['Supplier Name'];
+  DOM.microviewStand.textContent = supplierData['Stand Number'];
+  if(DOM.microviewStand.textContent == ''){
+    DOM.microviewStand.parentElement.style.display = "none";
+  }
   DOM.microviewCountry.textContent = supplierData['Supplier Country'];
   DOM.microviewFocus.textContent = supplierData['Focus'];
+  DOM.microviewCategory.textContent = supplierData['Main Product Category'];
+  DOM.microviewSpan.textContent = DOM.microviewFocus.textContent != '' && DOM.microviewCategory.textContent != '' ?  '>' : '';
 
   const products = getProductsForSupplier(supplierData['Supplier Name'], STATE.allData);
 
