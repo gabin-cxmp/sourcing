@@ -302,6 +302,15 @@ legend{
   color: #8E8E8E;
 }
 
+.focus-and-category{
+  display: flex;
+  gap: 8px;
+}
+
+.focus-and-category > span {
+  font-size: 9px;
+}
+
 .card-see-more {
   width: 45px;
   height: 40px;
@@ -407,9 +416,16 @@ input::placeholder {
   font-weight: 500;
 }
 
-#microview-focus{
-  margin-top: 32px;
+.focus-and-category-microview{
+  margin-top : 32px;
+  display: flex;
+  gap : 8px;
   color: #8E8E8E;
+  align-items: center;
+}
+
+.focus-and-category-microview > span {
+  font-size: 9px;
 }
 
 #certifications-list{
@@ -644,6 +660,15 @@ footer {
     gap: 8px;
     padding: 12px 20px;
   }
+
+  .focus-and-category{
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .focus-and-category > span {
+    display : none;
+  }
   
   .card-see-more{
     width: 40px;
@@ -659,7 +684,7 @@ footer {
     align-items: start;
   }
 
-  #microview-focus{
+  .focus-and-category-microview{
     margin-top: 16px;
   }
 
