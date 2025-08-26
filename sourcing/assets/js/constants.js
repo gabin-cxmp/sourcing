@@ -2,9 +2,12 @@
 export const CONFIG = {
   itemsPerPage: 12,
   csvUrls: [
-      'https://docs.google.com/spreadsheets/d/e/2PACX-1vTda139g0YsEDh0AW3PQ2hGvZpFlSQlS4QlOqjUKN5tJWCzgXmRDl-S8k3V3drnHyD3ax-_zqnyAoIp/pub?gid=0&single=true&output=csv',
-      'https://docs.google.com/spreadsheets/d/e/2PACX-1vQFMnAIVzcRLBXNXvNPcoDe3fmWeRXteipd6O5qvwOADkRcDc4VuF7dWuqP5s7HEFOif0eykCQM4hYm/pub?gid=0&single=true&output=csv',
-      'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIjq-iOQA2VUcdOIWXL1VhZXZ_OWnwSbhApfoN1U8mTMSeIBLiFO8TzEIKLLFjeHrgVqpbQDxJuKrx/pub?gid=0&single=true&output=csv'
+    //  'https://docs.google.com/spreadsheets/d/e/2PACX-1vTda139g0YsEDh0AW3PQ2hGvZpFlSQlS4QlOqjUKN5tJWCzgXmRDl-S8k3V3drnHyD3ax-_zqnyAoIp/pub?gid=0&single=true&output=csv',
+    //  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQFMnAIVzcRLBXNXvNPcoDe3fmWeRXteipd6O5qvwOADkRcDc4VuF7dWuqP5s7HEFOif0eykCQM4hYm/pub?gid=0&single=true&output=csv',
+    //  'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIjq-iOQA2VUcdOIWXL1VhZXZ_OWnwSbhApfoN1U8mTMSeIBLiFO8TzEIKLLFjeHrgVqpbQDxJuKrx/pub?gid=0&single=true&output=csv'
+   'https://docs.google.com/spreadsheets/d/1ZH8jI8UzT-iGPede9K1fZdbN3FswbRM_izHVRUdjiWk/export?format=csv&usp=sharing',
+   'https://docs.google.com/spreadsheets/d/1GuAEh0AF3XsGxP6sgd6hwNx_tdrbsHMygFnzKs-EQRo/export?format=csv&usp=sharing',
+   'https://docs.google.com/spreadsheets/d/1jirlux7uMjWhHlVN6pVFxOP6WSYApoU0GTIjqyrL9Jo/export?format=csv&usp=sharing'
   ],
   specialFilters: ['handmade', 'recycled', 'organic', 'ethical-manufacturing', 'limited-edition', 'white-label']
 };
