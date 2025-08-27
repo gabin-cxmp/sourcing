@@ -714,6 +714,7 @@ footer {
   }
 
 a#microview-contact_button {
-    display: none;
+    display: none !important;
 }
 }
+
