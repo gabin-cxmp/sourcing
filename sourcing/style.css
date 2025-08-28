@@ -696,6 +696,7 @@ footer {
   #microview-contact_button{
     margin-top: 24px;
     padding: 12px 20px;
+    display: none;
   }
 
   .divider{
@@ -718,5 +719,6 @@ a#microview-contact_button {
     display: none !important;
 }
 }
+
 
 
