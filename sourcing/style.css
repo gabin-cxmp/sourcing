@@ -114,6 +114,7 @@ legend{
 .position-sticky{
   position: sticky;
   top: 24px;
+  padding-bottom: 40px;
 }
 
 /* ===== UTILITY CLASSES ===== */

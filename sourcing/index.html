@@ -59,7 +59,6 @@
   <!-- PAGE LISTE DES MARQUES -->
   <main id="list-container" class="main-containers" aria-label="Liste des exposants">
     <div class="title-wrapper">
-      <!--a href="https://whosnext.com/en" rel="noopener noreferrer" class="secondary-button">Back to whosnext.com</a-->
       <h1>Exhibitors List</h1>
     </div>
 
@@ -68,104 +67,15 @@
       <aside id="filters-container" aria-label="Filtres de recherche">
         <div class="position-sticky">
           <h2>Filters</h2>
-          <fieldset class="filter-family_container">
-            <div class="filter-dropdown_activator">
-              <legend>Category</legend>
-              <img src="assets/img/chevron-down.svg" alt="">
-            </div>
-            <div class="checkboxes-container">
-              <div class="checkbox-container">
-                <input type="checkbox" id="Suppliers / Service providers" name="category" value="suppliers-service-providers" />
-                <label for="Suppliers / Service providers">Suppliers / Service providers</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="Lingerie / Sous-vêtements" name="category" value="lingerie-sous-vetements" />
-                <label for="Lingerie / Sous-vêtements">Lingerie / Sous-vêtements</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="Textile accessories" name="category" value="textile-accesories" />
-                <label for="Textile accessories">Textile accessories</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="Sourcing / Manufacturing" name="category" value="sourcing-manufacturing" />
-                <label for="Sourcing / Manufacturing">Sourcing / Manufacturing</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="Textiles" name="category" value="textiles" />
-                <label for="Textiles">Textiles</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="Accessoires lingerie" name="category" value="accesoires-lingerie" />
-                <label for="Accessoires lingerie">Accessoires lingerie</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="Ready-to-wear" name="category" value="ready-to-wear" />
-                <label for="Ready-to-wear">Ready-to-wear</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="Other accessories" name="category" value="other-accessories" />
-                <label for="Other accessories">Other accessories</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="Retail Equipment" name="category" value="retail-equipment" />
-                <label for="Retail Equipment">Retail Equipment</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="Bags / Leather goods" name="category" value="bags-leather-goods" />
-                <label for="Bags / Leather goods">Bags / Leather goods</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="Jewellery" name="category" value="jewellery" />
-                <label for="Jewellery">Jewellery</label>
-              </div>
-            </div>
-          </fieldset>
-          <fieldset class="filter-family_container">
-            <div class="filter-dropdown_activator">
-              <legend>Sustainability</legend>
-              <img src="assets/img/chevron-down.svg" alt="">
-            </div>
-            <div class="checkboxes-container">
-              <div class="checkbox-container">
-                <input type="checkbox" id="Recycled" name="sustainability" value="Recycled" />
-                <label for="Recycled">Recycled Products</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="Handmade" name="sustainability" value="Handmade" />
-                <label for="Handmade">Handmade Products</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="Organic" name="sustainability" value="Organic" />
-                <label for="Organic">Organic Products</label>
-              </div>
-              <!--div class="checkbox-container">
-                <input type="checkbox" id="ethical-manufacturing" name="ethical-manufacturing" value="ethical-manufacturing" />
-                <label for="ethical-manufacturing">Ethical Manufacturing</label>
-              </div-->
-              <div class="checkbox-container">
-                <input type="checkbox" id="limited-edition" name="sustainability" value="limited-edition" />
-                <label for="limited-edition">Limited Edition</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="white-label" name="sustainability" value="white-label" />
-                <label for="white-label">White Label</label>
-              </div>
-            </div>
-          </fieldset>
-          <fieldset class="filter-family_container" id="made-in-fieldset">
-            <div class="filter-dropdown_activator">
-              <legend>Made In</legend>
-              <img src="assets/img/chevron-down.svg" alt="">
-            </div>
-            <div class="checkboxes-container">
-              <!-- Les checkboxes seront générées dynamiquement ici par JavaScript -->
-            </div>
-          </fieldset>
+          <div id="loader" class="loader hidden" aria-live="polite" aria-busy="true" role="status"></div>
+          <div id="dynamic-filters-container">
+            <!-- Tous les filtres seront générés dynamiquement ici -->
+          </div>
           <div class="export-button_container">
             <button id="export-pdf_button" class="primary-button" disabled aria-disabled="true">Export results as PDF</button>
           </div>
         </div>
-      </aside>
+    </aside>
 
       <!-- Recherche & Liste -->
       <section class="searchbar-list_wrapper">
@@ -256,3 +166,5 @@
 
 </body>
 </html>
+
+
