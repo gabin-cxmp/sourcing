@@ -68,6 +68,10 @@ h1 {
   text-transform: uppercase;
 }
 
+h2{
+    font-weight: 500;
+}
+
 a {
   text-decoration: none;
   color: #222222;
@@ -717,6 +721,7 @@ footer {
 
 
 }
+
 
 
 
