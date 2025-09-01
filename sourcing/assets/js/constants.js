@@ -2,9 +2,12 @@
 export const CONFIG = {
   itemsPerPage: 12,
   csvUrls: [
-    'https://docs.google.com/spreadsheets/d/e/2PACX-1vTda139g0YsEDh0AW3PQ2hGvZpFlSQlS4QlOqjUKN5tJWCzgXmRDl-S8k3V3drnHyD3ax-_zqnyAoIp/pub?gid=0&single=true&output=csv',
-    'https://docs.google.com/spreadsheets/d/e/2PACX-1vQFMnAIVzcRLBXNXvNPcoDe3fmWeRXteipd6O5qvwOADkRcDc4VuF7dWuqP5s7HEFOif0eykCQM4hYm/pub?gid=0&single=true&output=csv',
-    'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIjq-iOQA2VUcdOIWXL1VhZXZ_OWnwSbhApfoN1U8mTMSeIBLiFO8TzEIKLLFjeHrgVqpbQDxJuKrx/pub?gid=0&single=true&output=csv'
+    //  'https://docs.google.com/spreadsheets/d/e/2PACX-1vTda139g0YsEDh0AW3PQ2hGvZpFlSQlS4QlOqjUKN5tJWCzgXmRDl-S8k3V3drnHyD3ax-_zqnyAoIp/pub?gid=0&single=true&output=csv', //
+    //  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQFMnAIVzcRLBXNXvNPcoDe3fmWeRXteipd6O5qvwOADkRcDc4VuF7dWuqP5s7HEFOif0eykCQM4hYm/pub?gid=0&single=true&output=csv',
+    //  'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIjq-iOQA2VUcdOIWXL1VhZXZ_OWnwSbhApfoN1U8mTMSeIBLiFO8TzEIKLLFjeHrgVqpbQDxJuKrx/pub?gid=0&single=true&output=csv'
+   'https://docs.google.com/spreadsheets/d/1ZH8jI8UzT-iGPede9K1fZdbN3FswbRM_izHVRUdjiWk/export?format=csv&usp=sharing',
+   'https://docs.google.com/spreadsheets/d/1GuAEh0AF3XsGxP6sgd6hwNx_tdrbsHMygFnzKs-EQRo/export?format=csv&usp=sharing',
+   'https://docs.google.com/spreadsheets/d/1jirlux7uMjWhHlVN6pVFxOP6WSYApoU0GTIjqyrL9Jo/export?format=csv&usp=sharing'
   ],
   specialFilters: ['handmade', 'recycled', 'organic', 'ethical-manufacturing', 'limited-edition', 'white-label']
 };
@@ -42,7 +45,7 @@ export const MADE_IN_VALUES = [
   'Australia',
   'Austria',
   'Belgium',
-  'Bolvia',
+  'Bolivia',
   'Brazil',
   'Bulgaria',
   'Canada',
@@ -106,3 +109,68 @@ export const MADE_IN_VALUES = [
   'Vietnam'
 
 ];
+
+export const FILTER_CONFIG = {
+  category: {
+    legend: 'Category',
+    fieldName: 'Main Product Category',
+    type: 'direct', // valeur directe du champ
+    possibleValues: [
+      'Suppliers / Service providers',
+      'Textile accessories',
+      'Sourcing / Manufacturing',
+      'Accessoires lingerie',
+      'Ready-to-wear',
+      'Other accessories',
+      'Bags / Leather goods',
+      'Jewellery'
+    ]
+  },
+  sustainability: {
+    legend: 'Sustainability',
+    type: 'computed', // valeurs calculées depuis plusieurs champs
+    filters: [
+      {
+        id: 'recycled',
+        label: 'Recycled Products',
+        check: (products) => products.some(p => 
+          (p['Recycled/Organic (if applicable)'] || '').toLowerCase().includes('recycled')
+        )
+      },
+      {
+        id: 'handmade',
+        label: 'Handmade Products',
+        check: (products) => products.some(p => 
+          (p['Handmade'] || '').toLowerCase() === 'yes'
+        )
+      },
+      {
+        id: 'organic',
+        label: 'Organic Products',
+        check: (products) => products.some(p => 
+          (p['Recycled/Organic (if applicable)'] || '').toLowerCase().includes('organic')
+        )
+      },
+      {
+        id: 'limited-edition',
+        label: 'Limited Edition',
+        check: (products) => products.some(p => 
+          (p['Is this product a limited edition?'] || '').toLowerCase() === 'yes'
+        )
+      },
+      {
+        id: 'white-label',
+        label: 'White Label',
+        check: (products) => products.some(p => 
+          (p['Is this product available as Private Label/White Label service?'] || '').toLowerCase() === 'yes'
+        )
+      }
+    ]
+  },
+  madeIn: {
+    legend: 'Made In',
+    fieldName: 'Made in',
+    type: 'madeIn', // type spécial pour Made In
+    possibleValues: MADE_IN_VALUES
+  }
+};

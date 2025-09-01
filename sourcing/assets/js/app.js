@@ -2,7 +2,7 @@ import { CONFIG, DOM } from './constants.js';
 import { STATE } from './state.js';
 import { loadAllData, exportPDF } from './services.js';
 import { debounce, applyFilters, getUrlParam, updatePagination } from './utils.js';
-import { initializeMadeInFilters, renderMicroView, hideMicroView } from './views.js';
+import { initializeAllFilters, renderMicroView, hideMicroView } from './views.js';
 
 // Initialisation
 (async () => {
@@ -11,7 +11,7 @@ import { initializeMadeInFilters, renderMicroView, hideMicroView } from './views
   STATE.exhibitorsOnly = exhibitorsOnly;
   STATE.filteredData = [...exhibitorsOnly];
 
-  initializeMadeInFilters();
+  initializeAllFilters();
 
   const supplierParam = getUrlParam('supplier-name');
   

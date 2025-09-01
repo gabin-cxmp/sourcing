@@ -2,32 +2,22 @@
 import { DOM, CONFIG } from './constants.js';
 import { STATE } from './state.js';
 import { normalizeStr, getUrlParam, updatePagination } from './utils.js';
-import { generateMadeInCheckboxes, applyFilters, getProductsForSupplier } from './utils.js';
+import { generateAllFilters, getProductsForSupplier } from './utils.js';
 
 // Fonction d'initialisation à ajouter dans views.js
-export const initializeMadeInFilters = () => {
+export const initializeAllFilters = () => {
+  const filtersContainer = document.getElementById('dynamic-filters-container');
   
-  if (DOM.madeInContainer) {
-    generateMadeInCheckboxes(DOM.madeInContainer.children[1]);
+  if (filtersContainer) {
+    // Générer tous les filtres dynamiquement
+    generateAllFilters(filtersContainer);
     
-    const madeInCheckboxes = DOM.madeInContainer.querySelectorAll('input[name="made-in"]');
-    madeInCheckboxes.forEach(checkbox => {
-      checkbox.addEventListener('change', applyFilters);
-    });
-
-    const madeInDropdown = document.querySelector('fieldset:last-child .filter-dropdown_activator');
-    if (madeInDropdown) {
-      const container = madeInDropdown.nextElementSibling;
-      const arrow = madeInDropdown.querySelector('img');
-      
-      madeInDropdown.addEventListener('click', () => {
-        const isOpen = container.style.height !== '0px' && container.style.height !== '';
-        container.style.height = isOpen ? '0px' : container.scrollHeight + 'px';
-        arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(-180deg)';
-      });
-    }
+    updateDOMReferences();
   }
+};
 
+const updateDOMReferences = () => {
+  DOM.checkboxes = document.querySelectorAll('input[name="category"]');
 };
 
 export const createExhibitorCard = (item) => {
@@ -236,7 +226,7 @@ export const renderMicroView = () => {
   renderMicroviewProductDetails(products);
 
   if (supplierData['Email']) {
-    DOM.microviewContactButton.classList.remove('hidden');
+   // DOM.microviewContactButton.classList.remove('hidden');
   }
 
   DOM.microviewContactButton.onclick = (e) => {
