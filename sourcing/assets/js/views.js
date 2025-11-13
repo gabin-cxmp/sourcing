@@ -200,8 +200,6 @@ export const renderMicroView = () => {
 
   STATE.currentSupplier = supplierData;
 
-  console.log(STATE.currentSupplier);
-
   DOM.listContainer.classList.add('hidden');
 
   const microview = DOM.microviewContainer;

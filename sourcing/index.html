@@ -20,7 +20,7 @@
     document.documentElement.classList.add('microview-only');
   }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@0.0.4/dist/fontkit.umd.min.js" defer></script>
   <!-- Styles -->
@@ -71,8 +71,13 @@
           <div id="dynamic-filters-container">
             <!-- Tous les filtres seront générés dynamiquement ici -->
           </div>
-          <div class="export-button_container">
-            <button id="export-pdf_button" class="primary-button" disabled aria-disabled="true">Export results as PDF</button>
+          <div class="filter-buttons_wrapper">
+            <div class="apply-button_container">
+              <button id="apply-filters_button" class="primary-button" disabled>Apply filters</button>
+            </div>
+            <div class="export-button_container">
+              <button id="export-pdf_button" class="primary-button" disabled aria-disabled="true">Export results</button>
+            </div>
           </div>
         </div>
     </aside>
@@ -166,5 +171,3 @@
 
 </body>
 </html>
-
-

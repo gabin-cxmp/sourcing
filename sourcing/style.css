@@ -226,6 +226,23 @@ legend{
   transition: transform 0.25s ease;
 }
 
+.filter-buttons_wrapper{
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.apply-button_container,
+.export-button_container, 
+.apply-button_container button, 
+.export-button_container button{
+  width: 100%;
+}
+
+.filters-buttons_wrapper button {
+  width: 100%;
+}
+
 .checkboxes-container{
   overflow: hidden;
   height: 0;
@@ -401,11 +418,6 @@ input::placeholder {
   width: 70%;
 }
 
-#export-pdf_button {
-  margin-top: 16px;
-  width: 100%;
-}
-
 /* Microview */
 .microview-only #list-container {
   display: none;
@@ -554,6 +566,8 @@ input[type="checkbox"] {
   100% { transform: rotate(360deg); }
 }
 
+
+
 /* Footer */
 footer {
   margin: 40px 0px;
@@ -652,7 +666,7 @@ footer {
     border-top : 1px solid #222;
   }
 
-  #export-pdf_button{
+  .export-button_container button{
     margin: 0;
     width: 95%;
   }
