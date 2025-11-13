@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-T885W2DX');</script>
+  <!-- End Google Tag Manager -->
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
+  <title>WSN | Exhibitors List</title>
+  <meta property="og:title" content="WSN | Liste de marques Sourcing" />
+  <!-- Librairies -->
+  <script>
+  if (location.search.includes('supplier-name=')) {
+    document.documentElement.classList.add('microview-only');
+  }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@0.0.4/dist/fontkit.umd.min.js" defer></script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Antonio&display=swap" rel="stylesheet">
+  <!-- Script principal -->
+  <script type="module" src="./assets/js/app.js"></script>
+  <link rel="icon" sizes="16x16" href="assets/favicon/16x16.png" type="image/png">
+  <link rel="icon" sizes="32x32" href="assets/favicon/32x32.png" type="image/png">
+</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0FQ7ZCF0BT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0FQ7ZCF0BT');
+</script>
+
+<body>
+
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T885W2DX"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="nav-wrapper">
+    <a href="/sourcing">
+      <img src="assets/img/logo-wsn.svg" class="wsn-logo">
+    </a>
+  </div>
+  <!-- PAGE LISTE DES MARQUES -->
+  <main id="list-container" class="main-containers" aria-label="Liste des exposants">
+    <div class="title-wrapper">
+      <h1>Exhibitors List</h1>
+    </div>
+
+    <div class="filters-list_wrapper">
+      <!-- Filtres -->
+      <aside id="filters-container" aria-label="Filtres de recherche">
+        <div class="position-sticky">
+          <h2>Filters</h2>
+          <div id="loader" class="loader hidden" aria-live="polite" aria-busy="true" role="status"></div>
+          <div id="dynamic-filters-container">
+            <!-- Tous les filtres seront générés dynamiquement ici -->
+          </div>
+          <div class="filter-buttons_wrapper">
+            <div class="apply-button_container">
+              <button id="apply-filters_button" class="primary-button" disabled>Apply filters</button>
+            </div>
+            <div class="export-button_container">
+              <button id="export-pdf_button" class="primary-button" disabled aria-disabled="true">Export results</button>
+            </div>
+          </div>
+        </div>
+    </aside>
+
+      <!-- Recherche & Liste -->
+      <section class="searchbar-list_wrapper">
+
+        <div id="searchbar_wrapper" role="search">
+          <input id="searchInput" type="search" placeholder="Find your supplier - try names or product types" autocomplete="off" />
+        </div>
+
+        <div>
+          <div id="loader" class="loader hidden" aria-live="polite" aria-busy="true" role="status"></div>
+          <div id="noResults" class="hidden" role="alert">
+            <p>Oops! We couldn't find any results matching your search.</p>
+          </div>
+          <div id="exhibitors-list" aria-live="polite" aria-atomic="true"></div>
+        </div>
+
+        <footer class="bottom-page_wrapper" aria-label="Navigation pagination et export">
+          <div class="pagination-buttons_wrapper" role="navigation" aria-label="Pagination"></div>
+        </footer>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- PAGE DÉTAILLÉE D'UN EXPOSANT -->
+  <main id="microview-container" class="main-containers hidden" aria-label="Détail exposant">
+    <a class="back-button" id="back-button_micro">
+      <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15.8786 18.961L9.8786 12.961L15.8786 6.96102" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <p>Back</p>
+    </a>
+    <div id="loader" class="loader hidden" aria-live="polite" aria-busy="true" role="status"></div>
+    <div id="microview-main-content_wrapper" class="hidden">
+      <div class="microview-header_wrapper">
+        <div>
+          <div class="focus-and-category-microview">
+          <p id="microview-focus"></p>
+          <span id="microview-span"></span>
+          <p id="microview-category"></p>
+          </div>
+          <h3 id="microview-title"></h3>
+          <div class="certifications_wrapper">
+            <p></p>
+            <ul id="certifications-list"></ul>
+          </div>
+        </div>
+        <a href="" id="microview-contact_button" class="primary-button hidden">Contact</a>
+      </div>
+      <div class="divider"></div>
+      <div class="microview_specifications-wrapper">
+        <div class="microview_details-wrapper">
+          <span>Stand</span>
+          <p id="microview-stand"></p>
+        </div>
+        <div class="microview_details-wrapper">
+          <span>Country</span>
+          <p id="microview-country"></p>
+        </div>
+        <div class="microview_details-wrapper">
+          <span>Product Type</span>
+          <p id="microview-type"></p>
+        </div>
+        <div class="microview_details-wrapper">
+          <span>Production Volumes</span>
+          <p id="microview-volumes"></p>
+        </div>
+        <div class="microview_details-wrapper">
+          <span>Product Material (main)</span>
+          <p id="microview-material"></p>
+        </div>
+        <div class="microview_details-wrapper">
+          <span>Product Material (secondary)</span>
+          <p id="microview-material-secondary"></p>
+        </div>
+        <div class="microview_details-wrapper">
+          <span>Product Specification (if applicable)</span>
+          <p id="microview-specification"></p>
+        </div>
+        <div class="microview_details-wrapper">
+          <span>Product Finishing (if applicable)</span>
+          <p id="microview-finishing"></p>
+        </div>
+      </div>
+    </div>
+  </main> 
+
+</body>
+</html>
