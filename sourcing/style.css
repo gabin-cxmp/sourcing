@@ -126,7 +126,7 @@ legend{
   line-height: 20px;
   padding: 10px 16px;
   border: none;
-  border-radius: 10px; 
+  border-radius: 8px; 
   transition: transform ease 0.2s;
 }
 
@@ -232,10 +232,10 @@ legend{
   gap: 8px;
 }
 
-.apply-button_container,
-.export-button_container, 
-.apply-button_container button, 
-.export-button_container button{
+.apply-button_container, 
+.apply-button_container button,
+.reset-button_container,
+.reset-button_container button{
   width: 100%;
 }
 
@@ -352,11 +352,12 @@ legend{
 #searchbar_wrapper {
   display: flex;
   margin-bottom: 24px;
+  gap: 8px;
 }
 
 #searchInput {
   flex: 1;
-  padding: 12px 14px 12px 40px;
+  padding: 8px 14px 8px 40px;
   border: 1px solid #CDD5DF;
   border-radius: 8px;
   background: url('assets/img/search-lg.svg') no-repeat 14px center;
