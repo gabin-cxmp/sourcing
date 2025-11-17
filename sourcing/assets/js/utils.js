@@ -150,7 +150,9 @@ export const createCheckbox = (filterType, id, label) => {
 };
 
 
-export const applyFilters = () => {
+let isInitialLoad = true;
+
+export const applyFilters = (userTriggered = false) => {
   // Collect filter data for GTM tracking BEFORE any other logic
   const categoryCheckboxes = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.id);
   const sustainabilityCheckboxes = Array.from(document.querySelectorAll('input[name="sustainability"]:checked')).map(cb => cb.id);
@@ -158,7 +160,7 @@ export const applyFilters = () => {
   const rawSearchValue = DOM.searchInput.value.trim();
 
   // Send filter data to GTM/GA (only if triggered by user, not initial load)
-  if (window.dataLayer && (categoryCheckboxes.length > 0 || sustainabilityCheckboxes.length > 0 || madeInFiltersForTracking.length > 0 || rawSearchValue.length >= 3)) {
+  if (window.dataLayer && userTriggered && !isInitialLoad && (categoryCheckboxes.length > 0 || sustainabilityCheckboxes.length > 0 || madeInFiltersForTracking.length > 0 || rawSearchValue.length >= 3)) {
     try {
       window.dataLayer.push({
         'event': 'apply_filters',
@@ -172,6 +174,8 @@ export const applyFilters = () => {
       console.warn('GTM tracking failed:', e);
     }
   }
+
+  isInitialLoad = false;
 
   DOM.noResults.classList.add('hidden');
   STATE.currentPage = 1;
@@ -251,6 +255,7 @@ export const applyFilters = () => {
 
   updatePagination();
 };
+
 
 export const updatePagination = () => {
   const start = (STATE.currentPage - 1) * CONFIG.itemsPerPage;
