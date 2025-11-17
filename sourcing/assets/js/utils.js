@@ -161,6 +161,7 @@ export const applyFilters = (userTriggered = false) => {
 
   // Send filter data to GTM/GA (only if triggered by user, not initial load)
   if (window.dataLayer && userTriggered && !isInitialLoad && (categoryCheckboxes.length > 0 || sustainabilityCheckboxes.length > 0 || madeInFiltersForTracking.length > 0 || rawSearchValue.length >= 3)) {
+    console.log('🔥 TRACKING:', { categoryCheckboxes, sustainabilityCheckboxes });
     try {
       window.dataLayer.push({
         'event': 'apply_filters',
