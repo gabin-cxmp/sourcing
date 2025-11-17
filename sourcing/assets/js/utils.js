@@ -159,9 +159,18 @@ export const applyFilters = (userTriggered = false) => {
   const madeInFiltersForTracking = Array.from(document.querySelectorAll('input[name="made-in"]:checked')).map(cb => cb.value);
   const rawSearchValue = DOM.searchInput.value.trim();
 
+  console.log('🧪 TEST:', {
+  hasDataLayer: !!window.dataLayer,
+  userTriggered,
+  isInitialLoad,
+  nbCategories: categoryCheckboxes.length,
+  nbSustainability: sustainabilityCheckboxes.length,
+  nbMadeIn: madeInFiltersForTracking.length,
+  searchLength: rawSearchValue.length
+});
+
   // Send filter data to GTM/GA (only if triggered by user, not initial load)
   if (window.dataLayer && userTriggered && !isInitialLoad && (categoryCheckboxes.length > 0 || sustainabilityCheckboxes.length > 0 || madeInFiltersForTracking.length > 0 || rawSearchValue.length >= 3)) {
-    console.log('🔥 TRACKING:', { categoryCheckboxes, sustainabilityCheckboxes });
     try {
       window.dataLayer.push({
         'event': 'apply_filters',
