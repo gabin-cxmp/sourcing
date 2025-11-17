@@ -16,7 +16,7 @@ import { initializeAllFilters, renderMicroView, hideMicroView } from './views.js
     DOM.checkboxes = document.querySelectorAll('.checkbox-container input[type="checkbox"]');
 
     DOM.checkboxes.forEach(cb => cb.addEventListener('change', updateApplyButton));
-    DOM.applyFiltersButton.addEventListener('click', () => applyFilters(true)); // 👈 CHANGE ICI
+    DOM.applyFiltersButton.addEventListener('click', applyFilters);
 
     const supplierParam = getUrlParam('supplier-name');
 
@@ -31,7 +31,7 @@ import { initializeAllFilters, renderMicroView, hideMicroView } from './views.js
   }
 })();
 
-DOM.searchInput.addEventListener('input', debounce(() => applyFilters(true), 300)); // 👈 ET ICI
+DOM.searchInput.addEventListener('input', debounce(applyFilters, 300));
 DOM.exportPDFButton.addEventListener('click', exportPDF);
 DOM.resetFiltersButton.addEventListener('click', resetAllFilters);
 window.addEventListener('popstate', renderMicroView);
