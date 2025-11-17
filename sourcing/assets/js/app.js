@@ -26,6 +26,10 @@ import { initializeAllFilters, renderMicroView, hideMicroView } from './views.js
       updateResetButton();
       updatePagination();
     }
+
+    const { setInitialLoadComplete } = await import('./utils.js');
+    setInitialLoadComplete();
+    
   } catch (error) {
     console.error('Initialization failed:', error);
   }

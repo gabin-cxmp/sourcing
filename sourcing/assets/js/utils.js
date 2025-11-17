@@ -319,3 +319,7 @@ export const getProductsForSupplier = (supplierName, allData) => {
   const supplierNorm = normalizeStr(supplierName);
   return allData.filter(item => normalizeStr(item['Supplier Name']) === supplierNorm).filter(item => item);
 };
+
+export const setInitialLoadComplete = () => {
+  isInitialLoad = false;
+};
