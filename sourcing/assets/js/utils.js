@@ -149,15 +149,46 @@ export const createCheckbox = (filterType, id, label) => {
   return container;
 };
 
-export const applyFilters = () => {
+let isInitialLoad = true;
+
+export const applyFilters = (userTriggered = false) => {
+  // Collect filter data for GTM tracking BEFORE any other logic
+  const categoryCheckboxes = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.id);
+  const sustainabilityCheckboxes = Array.from(document.querySelectorAll('input[name="sustainability"]:checked')).map(cb => cb.id);
+  const madeInFiltersForTracking = Array.from(document.querySelectorAll('input[name="made-in"]:checked')).map(cb => cb.value);
+  const rawSearchValue = DOM.searchInput.value.trim();
+
+  // Send filter data to GTM/GA (only if triggered by user, not initial load)
+  if (window.dataLayer && userTriggered && !isInitialLoad && (categoryCheckboxes.length > 0 || sustainabilityCheckboxes.length > 0 || madeInFiltersForTracking.length > 0 || rawSearchValue.length >= 3)) {
+    try {
+      window.dataLayer.push({
+        'event': 'apply_filters',
+        'filter_categories': categoryCheckboxes,
+        'filter_sustainability': sustainabilityCheckboxes,
+        'filter_made_in': madeInFiltersForTracking,
+        'search_term': rawSearchValue,
+        'total_filters_applied': categoryCheckboxes.length + sustainabilityCheckboxes.length + madeInFiltersForTracking.length + (rawSearchValue ? 1 : 0)
+      });
+    } catch (e) {
+      console.warn('GTM tracking failed:', e);
+    }
+  }
+
+  isInitialLoad = false;
+
   DOM.noResults.classList.add('hidden');
   STATE.currentPage = 1;
 
-  const categoryCheckboxes = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.id);
-  const sustainabilityCheckboxes = Array.from(document.querySelectorAll('input[name="sustainability"]:checked')).map(cb => cb.id);
+  // For filtering logic, use normalized values
   const madeInFilters = Array.from(document.querySelectorAll('input[name="made-in"]:checked')).map(cb => normalizeStr(cb.value.trim()));
 
   const searchValue = normalizeStr(DOM.searchInput.value.trim());
+
+  const hasValidSearch = rawSearchValue.length >= 3;
+  const hasSelectedFilters = categoryCheckboxes.length > 0 || sustainabilityCheckboxes.length > 0 || madeInFilters.length > 0;
+
+  // Set areFiltersApplied to true if there are active filters being applied
+  STATE.areFiltersApplied = hasValidSearch || hasSelectedFilters;
 
   STATE.filteredData = STATE.exhibitorsOnly.filter(exhibitor => {
     const nameNorm = normalizeStr(exhibitor['Supplier Name']);
@@ -213,14 +244,13 @@ export const applyFilters = () => {
 
   if (STATE.filteredData.length === 0) DOM.noResults.classList.remove('hidden');
 
-  const rawSearchValue = DOM.searchInput.value.trim();
-  const hasValidSearch = rawSearchValue.length >= 3;
-  const hasSelectedFilters = categoryCheckboxes.length > 0 || sustainabilityCheckboxes.length > 0 || madeInFilters.length > 0;
-
   const exportButton = document.getElementById('export-pdf_button');
   if (exportButton) {
     exportButton.disabled = !(hasValidSearch || hasSelectedFilters) || STATE.filteredData.length === 0;
   }
+
+  // Update reset button state after filters are applied
+  updateResetButton();
 
   updatePagination();
 };
@@ -237,6 +267,40 @@ export const updatePagination = () => {
 export const updateApplyButton = () => {
   const hasSelectedFilters = Array.from(DOM.checkboxes).some(cb => cb.checked);
   DOM.applyFiltersButton.disabled = !hasSelectedFilters;
+};
+
+export const updateResetButton = () => {
+  DOM.resetFiltersButton.disabled = !STATE.areFiltersApplied;
+};
+
+export const resetAllFilters = () => {
+  // Reset search input
+  DOM.searchInput.value = '';
+
+  // Uncheck all checkboxes
+  const allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+  allCheckboxes.forEach(checkbox => {
+    checkbox.checked = false;
+  });
+
+  // Reset state
+  STATE.filteredData = [...STATE.exhibitorsOnly];
+  STATE.currentPage = 1;
+  STATE.areFiltersApplied = false;
+
+  // Update UI
+  updateApplyButton();
+  updateResetButton();
+
+  // Re-render with all data
+  DOM.noResults.classList.add('hidden');
+  updatePagination();
+
+  // Update export button
+  const exportButton = document.getElementById('export-pdf_button');
+  if (exportButton) {
+    exportButton.disabled = true;
+  }
 };
 
 export const getProductsForSupplier = (supplierName, allData) => {

@@ -11,6 +11,7 @@ export const DOM = {
   exhibitorsList: document.getElementById('exhibitors-list'),
   searchInput: document.getElementById('searchInput'),
   applyFiltersButton: document.getElementById('apply-filters_button'),
+  resetFiltersButton: document.getElementById('reset-filters_button'),
   noResults: document.getElementById('noResults'),
   checkboxes: document.querySelectorAll('.checkbox-container input[type="checkbox"]'),
   checkboxesContainers: document.querySelectorAll('.checkboxes-container'),

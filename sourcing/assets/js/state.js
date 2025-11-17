@@ -5,5 +5,6 @@ export const STATE = {
   exhibitorsOnly: [],
   filteredData: [],
   currentPage: 1,
-  currentSupplier: null
+  currentSupplier: null,
+  areFiltersApplied: false
 };
