@@ -14,7 +14,7 @@ const App = {
     // Check authentication immediately
     const session = await getSession();
     if (!session) {
-      window.location.replace('/login');
+      window.location.replace('/sourcing/login');
       return;
     }
 

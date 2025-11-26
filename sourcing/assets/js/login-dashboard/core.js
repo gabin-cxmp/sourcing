@@ -29,7 +29,7 @@ export async function requireAuth({ redirectTo }) {
 
 export async function signOut() {
   await supabase.auth.signOut();
-  window.location.replace('/login');
+  window.location.replace('/sourcing/login');
 }
 
 
