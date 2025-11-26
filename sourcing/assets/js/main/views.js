@@ -279,7 +279,7 @@ const renderCertifications = (supplierData, products) => {
     if (certVal) {
       certVal.split(',').forEach(rawCert => {
         const trimmed = rawCert.trim();
-        if (trimmed) {
+        if (trimmed && trimmed!== "None") {
           addedCertifications.add(`raw|${trimmed}`);
         }
       });
