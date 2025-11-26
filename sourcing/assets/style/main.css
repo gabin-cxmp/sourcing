@@ -1,7 +1,7 @@
 /* ===== FONTS ===== */
 @font-face {
     font-family: 'Theinhardt';
-    src: url('assets/fonts/Theinhardt-Md.woff2') format('woff2');
+    src: url('../fonts/Theinhardt-Md.woff2') format('woff2');
     font-weight: 500;
     font-style: normal;
     font-display: swap;
@@ -9,7 +9,7 @@
 
 @font-face {
     font-family: 'Theinhardt';
-    src: url('assets/fonts/Theinhardt-Bd.woff2') format('woff2');
+    src: url('../fonts/Theinhardt-Bd.woff2') format('woff2');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
@@ -17,7 +17,7 @@
 
 @font-face {
     font-family: 'Theinhardt';
-    src: url('assets/fonts/Theinhardt-It.woff2') format('woff2');
+    src: url('../fonts/Theinhardt-It.woff2') format('woff2');
     font-weight: normal;
     font-style: italic;
     font-display: swap;
@@ -25,7 +25,7 @@
 
 @font-face {
     font-family: 'Theinhardt';
-    src: url('assets/fonts/Theinhardt-Rg.woff2') format('woff2');
+    src: url('../fonts/Theinhardt-Rg.woff2') format('woff2');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -33,7 +33,7 @@
 
 @font-face {
     font-family: 'Theinhardt';
-    src: url('assets/fonts/Theinhardt-Hv.woff2') format('woff2');
+    src: url('../fonts/Theinhardt-Hv.woff2') format('woff2');
     font-weight: 800;
     font-style: normal;
     font-display: swap;
@@ -734,3 +734,4 @@ footer {
   }
 
 }
+
