@@ -14,7 +14,7 @@ const App = {
     // Check authentication immediately
     const session = await getSession();
     if (!session) {
-      window.location.replace('/sourcing/login');
+      window.location.replace('/login');
       return;
     }
 
@@ -352,34 +352,48 @@ const App = {
   },
 
   async saveSupplierData() {
-    const messageEl = document.querySelector('#message');
-    const editBtn = document.querySelector('.btn-edit');
+  const messageEl = document.querySelector('#message');
+  const editBtn = document.querySelector('.btn-edit');
 
-    const payload = {
-      name: document.querySelector('#supplierName')?.value?.trim() || null,
-      company_certifications: document.querySelector('#certifications')?.value?.trim() || null,
-      country: document.querySelector('#countrySelect')?.value || null,
-      focus: document.querySelector('#focusSelect')?.value || null,
-      main_product_category: document.querySelector('#mainCategorySelect')?.value || null,
-      secondary_product_category: document.querySelector('#secondaryCategorySelect')?.value || null,
-    };
+  const payload = {
+    name: document.querySelector('#supplierName')?.value?.trim() || null,
+    company_certifications: document.querySelector('#certifications')?.value?.trim() || null,
+    country: document.querySelector('#countrySelect')?.value || null,
+    focus: document.querySelector('#focusSelect')?.value || null,
+    main_product_category: document.querySelector('#mainCategorySelect')?.value || null,
+    secondary_product_category: document.querySelector('#secondaryCategorySelect')?.value || null,
+  };
 
-    const changed = Object.keys(payload).some(k =>
-      (this.initialSupplier?.[k] ?? null) !== (payload[k] ?? null)
-    );
+  const changed = Object.keys(payload).some(
+    k => (this.initialSupplier?.[k] ?? null) !== (payload[k] ?? null)
+  );
 
-    if (!changed) return;
+  if (!changed) {
+    showMessage(messageEl, 'No changes to save.', 'info');
+    return;
+  }
 
-    setLoading(editBtn, true, 'Save informations');
+  setLoading(editBtn, true, 'Saving...');
 
-    try {
-      await Suppliers.update(payload);
-      await this.loadSupplierData(); // Refresh data
-    } catch (e) {
-      console.error(e);
-      DOM.showMessage(messageEl, 'Save failed.', 'error');
-    }
-  },
+  try {
+    // 💥 HERE IS THE MISSING PART
+    const updatedSupplier = await Suppliers.update(payload);
+
+    // Update local state
+    this.initialSupplier = { ...updatedSupplier };
+
+    showMessage(messageEl, 'Informations saved successfully.', 'success');
+
+    // Reload products and UI
+    await this.loadProducts();
+
+  } catch (e) {
+    console.error('Save supplier failed:', e);
+    showMessage(messageEl, 'Unable to save.', 'error');
+  } finally {
+    setLoading(editBtn, false, 'Update');
+  }
+},
 
   async openProductModal(product, isNewProduct = false) {
     const { DOM } = window.ui || { DOM: { qs: (s) => document.querySelector(s) } };
@@ -622,3 +636,4 @@ const App = {
 
 // Initialize app
 App.init();
+
