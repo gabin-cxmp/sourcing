@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Exposant</title>
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" as="script">
+    <link rel="stylesheet" href="../assets/style/login-dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="../assets/js/bundle.js"></script>
+    <link rel="icon" sizes="16x16" href="../assets/favicon/16x16.png" type="image/png">
+    <link rel="icon" sizes="32x32" href="../assets/favicon/32x32.png" type="image/png">
+</head>
+<body class="dashboard-page" data-page="dashboard">
+    <header>
+            <div class="container">
+                <div class="header-content">
+                    <div class="welcome-section">
+                        <h1><span class="user-name"></span> DASHBOARD</h1>
+                    </div>
+                    <button class="btn-logout">Log out</button>
+                </div>
+            </div>
+    </header>
+
+    <div class="container">
+            <!-- USER INFORMATION SECTION -->
+            <section id="user-info-section">
+                <h2>User informations</h2>
+                <form id="user-form">
+                    <div class="loader-container" id="loader">
+                        <div class="loader-spinner"></div>
+                        <div class="loader-text">Loading...</div>
+                    </div>
+                    <p id="message"></p>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="supplierName">Company Name</label>
+                            <input type="text" id="supplierName" value="" disabled required>
+                        </div>
+                        <div class="form-group">
+                            <label for="certifications">Certification</label>
+                            <input type="text" id="certifications" value="" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="countrySelect">Country</label>
+                            <div class="custom-select-wrapper">
+                                <select id="countrySelect" class="custom-select" disabled required>
+                                    <option value="">Select a country</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="focusSelect">Focus</label>
+                            <div class="custom-select-wrapper">
+                                <select id="focusSelect" class="custom-select" disabled required>
+                                    <option value="">Select a focus</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="mainCategorySelect">Main product category</label>
+                            <div class="custom-select-wrapper">
+                                <select id="mainCategorySelect" class="custom-select" disabled required>
+                                    <option value="">Select a category</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="mainCategorySelect">Secondary product category</label>
+                            <div class="custom-select-wrapper">
+                                <select id="secondaryCategorySelect" class="custom-select" disabled required>
+                                    <option value="">Select a category</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-edit">Update</button>
+                </form>
+            </section>
+
+            <!-- PRODUCTS SECTION -->
+            <section id="products-section">
+                <div class="products-header">
+                    <h2 style="margin: 0; padding: 0; border: none;">My products</h2>
+                    <button class="btn-add">+ Add a product</button>
+                </div>
+
+                <div class="loader-container" id="products-loader">
+                    <div class="loader-spinner"></div>
+                    <div class="loader-text">Loading...</div>
+                </div>
+                <div class="products-list" id="products-list"></div>
+            </section>
+    </div>
+
+    <!-- Product Modal Template -->
+    <div class="product-modal-overlay" id="productModalTemplate" style="display: none;">
+        <div class="product-modal-dialog" tabindex="0">
+            <button class="product-modal-close" aria-label="Close">&times;</button>
+            <h2 class="product-modal-title"></h2>
+            <form class="product-modal-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="product-modal-reference_name">Reference Name <span style="color:red">*</span></label>
+                        <input id="product-modal-reference_name" name="reference_name" type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-modal-type">Type <span style="color:red">*</span></label>
+                        <input id="product-modal-type" name="type" type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-modal-material">Material <span style="color:red">*</span></label>
+                        <input id="product-modal-material" name="material" type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-modal-material_secondary">Material (secondary)</label>
+                        <input id="product-modal-material_secondary" name="material_secondary" type="text">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-modal-finishing">Finishing</label>
+                        <input id="product-modal-finishing" name="finishing" type="text">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-modal-specifications">Specifications</label>
+                        <textarea id="product-modal-specifications" name="specifications" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-modal-production_volumes">Production volume <span style="color:red">*</span></label>
+                        <div class="custom-select-wrapper">
+                            <select id="product-modal-production_volumes" name="production_volumes" class="custom-select" required>
+                                <option value="">Select…</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-modal-made_in">Made in <span style="color:red">*</span></label>
+                        <div class="custom-select-wrapper">
+                            <select id="product-modal-made_in" name="made_in" class="custom-select" required>
+                                <option value="">Select…</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-modal-recycled_organic">Recycled/Organic <span style="color:red">*</span></label>
+                        <div class="custom-select-wrapper">
+                            <select id="product-modal-recycled_organic" name="recycled_organic" class="custom-select" required>
+                                <option value="">Select…</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-modal-raw_material_certifications">Raw material certifications <span style="color:red">*</span></label>
+                        <div class="custom-select-wrapper">
+                            <select id="product-modal-raw_material_certifications" name="raw_material_certifications" class="custom-select" required>
+                                <option value="">Select…</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-modal-other_raw_material_certifications">Other raw material certifications</label>
+                        <input id="product-modal-other_raw_material_certifications" name="other_raw_material_certifications" type="text">
+                    </div>
+                    <div class="checkboxes-container">
+                        <div class="checkbox-row">
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="product-modal-handmade" name="handmade">
+                                    <label for="product-modal-handmade">Handmade</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="product-modal-private_label_white_label" name="private_label_white_label">
+                                    <label for="product-modal-private_label_white_label">Private-label / White-label</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="checkbox-row">
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="product-modal-limited_edition" name="limited_edition">
+                                    <label for="product-modal-limited_edition">Limited edition</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="product-modal-deadstock" name="deadstock">
+                                    <label for="product-modal-deadstock">Deadstock</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-modal-actions">
+                    <button type="submit" class="btn-save">Save informations</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal Template -->
+    <div class="delete-modal-overlay" id="deleteModalTemplate" style="display: none;">
+        <div class="delete-modal-dialog" tabindex="0">
+            <button class="delete-modal-close" aria-label="Close">&times;</button>
+            <div class="delete-modal-content">
+                <h3 class="delete-modal-title">Confirm Deletion</h3>
+                <p class="delete-modal-message">Are you sure you want to delete <strong class="product-name"></strong>?</p>
+                <p class="delete-modal-warning">This action cannot be undone.</p>
+                <div class="delete-modal-actions">
+                    <button type="button" class="btn-cancel">No, keep it</button>
+                    <button type="button" class="btn-confirm">Yes, delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
