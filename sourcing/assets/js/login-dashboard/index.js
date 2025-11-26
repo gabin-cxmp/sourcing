@@ -10,7 +10,7 @@ const App = {
   },
 
   async initDashboard() {
-    const session = await requireAuth({ redirectTo: '/' });
+    const session = await requireAuth({ redirectTo: 'https://wsn-events.com/sourcing/login/' });
     if (!session) return;
     sessionState.setSession(session);
 
@@ -589,6 +589,7 @@ const App = {
 
 // Initialize app
 App.init();
+
 
 
 
