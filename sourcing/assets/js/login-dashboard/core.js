@@ -29,8 +29,9 @@ export async function requireAuth({ redirectTo }) {
 
 export async function signOut() {
   await supabase.auth.signOut();
-  window.location.replace('/sourcing/login');
+  window.location.replace('https://wsn-events.com/sourcing/login/');
 }
+
 
 
 
