@@ -360,7 +360,7 @@ legend{
   padding: 8px 14px 8px 40px;
   border: 1px solid #CDD5DF;
   border-radius: 8px;
-  background: url('assets/img/search-lg.svg') no-repeat 14px center;
+  background: url('../img/search-lg.svg') no-repeat 14px center;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -734,4 +734,5 @@ footer {
   }
 
 }
+
 
