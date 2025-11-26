@@ -373,13 +373,11 @@ const App = {
     setLoading(editBtn, true, 'Save informations');
 
     try {
-      // Load supplier data first to ensure supplierId is available
-      await this.loadSupplierData();
-      // Then load products once supplierId is set
-      await this.loadProducts();
+      await Suppliers.update(payload);
+      await this.loadSupplierData(); // Refresh data
     } catch (e) {
       console.error(e);
-      DOM.showMessage(messageEl, 'Unable to load your data.', 'error');
+      DOM.showMessage(messageEl, 'Save failed.', 'error');
     }
   },
 
@@ -624,4 +622,3 @@ const App = {
 
 // Initialize app
 App.init();
-
