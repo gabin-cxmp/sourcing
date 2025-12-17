@@ -168,7 +168,8 @@ export const applyFilters = (userTriggered = false) => {
         'filter_sustainability': sustainabilityCheckboxes,
         'filter_made_in': madeInFiltersForTracking,
         'search_term': rawSearchValue,
-        'total_filters_applied': categoryCheckboxes.length + sustainabilityCheckboxes.length + madeInFiltersForTracking.length + (rawSearchValue ? 1 : 0)
+        'total_filters_applied': categoryCheckboxes.length + sustainabilityCheckboxes.length + madeInFiltersForTracking.length + (rawSearchValue ? 1 : 0),
+        'filter_combination': `${categoryCheckboxes.join(',')}|${sustainabilityCheckboxes.join(',')}|${madeInFiltersForTracking.join(',')}`
       });
     } catch (e) {
       console.warn('GTM tracking failed:', e);
