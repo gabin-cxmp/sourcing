@@ -216,13 +216,22 @@ export const exportPDF = async () => {
     const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    
+    // Ouvrir dans un nouvel onglet (compatible tous navigateurs)
+    const newWindow = window.open(url, '_blank');
+    
+    // Si bloqué par le navigateur, fallback sur téléchargement
+    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `exhibitors-list-${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    
+    // Nettoyer l'URL après un délai
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
 
   } catch (error) {
     alert('An error occurred while generating the PDF');
