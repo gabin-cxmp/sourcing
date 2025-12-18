@@ -664,6 +664,7 @@ footer {
     bottom: 0;
     padding: 16px;
     background: white;
+    z-index: 100;
     border-top : 1px solid #222;
   }
 
@@ -734,5 +735,3 @@ footer {
   }
 
 }
-
-
