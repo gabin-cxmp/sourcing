@@ -14,7 +14,7 @@ const App = {
     // Check authentication immediately
     const session = await getSession();
     if (!session) {
-      window.location.replace('https://wsn-events.com/sourcing/login/');
+      window.location.replace('wsn-events.com/sourcing/login/');
       return;
     }
 
@@ -351,17 +351,24 @@ const App = {
     document.querySelectorAll('.req-mark').forEach(n => n.remove());
   },
 
-  async saveSupplierData() {
+async saveSupplierData() {
   const messageEl = document.querySelector('#message');
   const editBtn = document.querySelector('.btn-edit');
+
+  // Helper pour convertir empty string en null et parser les numbers
+  const parseValue = (val) => {
+    if (val === '' || val === undefined || val === null) return null;
+    const num = Number(val);
+    return isNaN(num) ? val : num;
+  };
 
   const payload = {
     name: document.querySelector('#supplierName')?.value?.trim() || null,
     company_certifications: document.querySelector('#certifications')?.value?.trim() || null,
-    country: document.querySelector('#countrySelect')?.value || null,
-    focus: document.querySelector('#focusSelect')?.value || null,
-    main_product_category: document.querySelector('#mainCategorySelect')?.value || null,
-    secondary_product_category: document.querySelector('#secondaryCategorySelect')?.value || null,
+    country: parseValue(document.querySelector('#countrySelect')?.value),
+    focus: parseValue(document.querySelector('#focusSelect')?.value),
+    main_product_category: parseValue(document.querySelector('#mainCategorySelect')?.value),
+    secondary_product_category: parseValue(document.querySelector('#secondaryCategorySelect')?.value),
   };
 
   const changed = Object.keys(payload).some(
@@ -376,20 +383,13 @@ const App = {
   setLoading(editBtn, true, 'Saving...');
 
   try {
-    // 💥 HERE IS THE MISSING PART
     const updatedSupplier = await Suppliers.update(payload);
-
-    // Update local state
     this.initialSupplier = { ...updatedSupplier };
-
     showMessage(messageEl, 'Informations saved successfully.', 'success');
-
-    // Reload products and UI
     await this.loadProducts();
-
   } catch (e) {
     console.error('Save supplier failed:', e);
-    showMessage(messageEl, 'Unable to save.', 'error');
+    showMessage(messageEl, `Unable to save: ${e.message}`, 'error');
   } finally {
     setLoading(editBtn, false, 'Update');
   }
@@ -527,58 +527,65 @@ const App = {
     }
   },
 
-  async saveProduct(formElements, product, isNewProduct, modalClose) {
-    const messageEl = document.querySelector('#message');
+async saveProduct(formElements, product, isNewProduct, modalClose) {
+  const messageEl = document.querySelector('#message');
 
-    const payload = {
-      reference_name: formElements.reference_name?.value?.trim() || null,
-      type: formElements.type?.value?.trim() || null,
-      material: formElements.material?.value?.trim() || null,
-      material_secondary: formElements.material_secondary?.value?.trim() || null,
-      finishing: formElements.finishing?.value?.trim() || null,
-      specifications: formElements.specifications?.value?.trim() || null,
-      production_volumes: formElements.production_volumes?.value || null,
-      made_in: formElements.made_in?.value || null,
-      recycled_organic: formElements.recycled_organic?.value || null,
-      raw_material_certifications: formElements.raw_material_certifications?.value || null,
-      other_raw_material_certifications: formElements.other_raw_material_certifications?.value?.trim() || null,
-      handmade: formElements.handmade?.checked || false,
-      private_label_white_label: formElements.private_label_white_label?.checked || false,
-      limited_edition: formElements.limited_edition?.checked || false,
-      deadstock: formElements.deadstock?.checked || false,
-    };
+  // Helper pour convertir empty string en null et parser les numbers
+  const parseValue = (val) => {
+    if (val === '' || val === undefined || val === null) return null;
+    const num = Number(val);
+    return isNaN(num) ? val : num;
+  };
 
-    const changed = !product || Object.keys(payload).some(k =>
-      (payload[k] ?? null) !== (product[k] ?? null)
-    );
+  const payload = {
+    reference_name: formElements.reference_name?.value?.trim() || null,
+    type: formElements.type?.value?.trim() || null,
+    material: formElements.material?.value?.trim() || null,
+    material_secondary: formElements.material_secondary?.value?.trim() || null,
+    finishing: formElements.finishing?.value?.trim() || null,
+    specifications: formElements.specifications?.value?.trim() || null,
+    production_volumes: parseValue(formElements.production_volumes?.value),
+    made_in: parseValue(formElements.made_in?.value),
+    recycled_organic: parseValue(formElements.recycled_organic?.value),
+    raw_material_certifications: parseValue(formElements.raw_material_certifications?.value),
+    other_raw_material_certifications: formElements.other_raw_material_certifications?.value?.trim() || null,
+    handmade: formElements.handmade?.checked || false,
+    private_label_white_label: formElements.private_label_white_label?.checked || false,
+    limited_edition: formElements.limited_edition?.checked || false,
+    deadstock: formElements.deadstock?.checked || false,
+  };
 
-    if (!changed && !isNewProduct) return modalClose();
+  const changed = !product || Object.keys(payload).some(k =>
+    (payload[k] ?? null) !== (product[k] ?? null)
+  );
 
-    const saveBtn = formElements.reference_name?.closest('form')?.querySelector('.btn-save');
+  if (!changed && !isNewProduct) return modalClose();
+
+  const saveBtn = formElements.reference_name?.closest('form')?.querySelector('.btn-save');
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+  }
+
+  try {
+    if (isNewProduct) {
+      await Products.create(payload);
+    } else {
+      await Products.update(product.id, payload);
+    }
+
+    modalClose();
+    await this.loadProducts();
+  } catch (error) {
+    console.error('Error saving product:', error);
+    showMessage(messageEl, `Save failed: ${error.message}`, 'error');
+  } finally {
     if (saveBtn) {
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'Saving...';
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save informations';
     }
-
-    try {
-      if (isNewProduct) {
-        await Products.create(payload);
-      } else {
-        await Products.update(product.id, payload);
-      }
-
-      modalClose();
-      await this.loadProducts();
-    } catch (error) {
-      console.error('Error saving product:', error);
-      showMessage(messageEl, 'Save failed.', 'error');
-    } finally {
-      if (saveBtn) {
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Save informations';
-      }
-    }
-  },
+  }
+},
 
   async openDeleteModal(product) {
     const { DOM } = window.ui || { DOM: { qs: (s) => document.querySelector(s) } };
@@ -636,5 +643,4 @@ const App = {
 
 // Initialize app
 App.init();
-
 
