@@ -6,7 +6,7 @@ const supabase = globalThis.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_
 export const fetchAllData = async () => {
   const { data: suppliersRaw, error: suppliersError } = await supabase
     .from('public_suppliers')
-    .select('* , countries(name), focus_join:focuses!focus(name), secondary_join:product_categories!secondary_product_category(name), product_categories(name), tradeshow(name), is_active')
+    .select('* , countries(name), focus_join:focuses!focus(name), main_cat:product_categories!suppliers_main_product_category_fkey(name), tradeshow(name), is_active')
     .order('name');
 
   const { data: productsRaw, error: productsError } = await supabase
@@ -26,7 +26,7 @@ export const fetchAllData = async () => {
       'Supplier Name': item.name,
       'Supplier Country': item.countries?.name || '',
       'Focus': item.focus_join?.name || '',
-      'Main Product Category': item.product_categories?.name || '',
+      'Main Product Category': item.main_cat?.name || '',
       'Stand Number': item.stand || '',
       id: item.id,
       is_active: item.is_active
