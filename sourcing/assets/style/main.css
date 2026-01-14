@@ -486,7 +486,7 @@ input::placeholder {
   letter-spacing: 8%;
 }
 
-/* Plan containers */
+/* ===== PLAN SVG - OPTIMISÉ ===== */
 .microview_plan-wrapper {
   margin-top: 40px;
   width: 100%;
@@ -496,17 +496,25 @@ input::placeholder {
 #first-floor_plan-container,
 #second-floor_plan-container {
   width: 100%;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
+  position: relative;
 }
 
 .plan-container {
-  width: 100%;
+  width: 55%;
+  height: 600px;
   overflow: hidden;
-  /*border: 1px solid #CDD5DF;*/
-  border-radius: 8px;
-  background: #fff;
+  border: 1px solid #E5E5E5;
+  border-radius: 12px;
+  background: #FAFAFA;
   cursor: grab;
   position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .plan-container:active {
@@ -516,30 +524,96 @@ input::placeholder {
 #ground-floor_plan-container svg,
 #first-floor_plan-container svg,
 #second-floor_plan-container svg {
-  max-width: 50%;
+  width: 100%;
   height: auto;
   display: block;
-  transition: transform 0.1s ease-out;
+  transform-origin: 0 0;
+  will-change: transform;
+  shape-rendering: geometricPrecision; 
+  text-rendering: geometricPrecision;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+  pointer-events: none;
 }
 
-/* Responsive SVG */
-@media (max-width: 768px) {
-  .plan-container {
-    overflow-x: auto;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
+/* Contrôles de zoom */
+.zoom-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+  background: white;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #E5E5E5;
+}
 
-  #ground-floor_plan-container svg,
-  #first-floor_plan-container svg,
-  #second-floor_plan-container svg {
-    max-width: 100%;
-    width: auto;
-  }
+.zoom-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #E5E5E5;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #222222;
+  padding: 0;
+}
+
+.zoom-btn:hover {
+  background: #F5F5F5;
+  border-color: #222222;
+  transform: scale(1.05);
+}
+
+.zoom-btn:active {
+  transform: scale(0.95);
+}
+
+.zoom-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Instructions visuelles */
+.plan-container::before {
+  content: 'Utilisez la molette ou pincer pour zoomer • Glissez pour vous déplacer • Double-cliquez pour réinitialiser';
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  max-width: 90%;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.plan-container:hover::before {
+  opacity: 1;
+}
+
+/* Animation de survol pour les groupes */
+#ground-floor_plan-container svg g,
+#first-floor_plan-container svg g,
+#second-floor_plan-container svg g {
+  transition: opacity 0.2s ease, filter 0.2s ease;
 }
 
 #microview-contact_button{
@@ -551,7 +625,7 @@ input::placeholder {
 /* Tags */
 #certifications-list > li {
   font-size: 14px;
-  padding: 4px 10px; /* Padding vertical plus uniforme */
+  padding: 4px 10px;
   border-radius: 100px;
   letter-spacing: -2%;
   
@@ -630,14 +704,12 @@ input[type="checkbox"] {
   100% { transform: rotate(360deg); }
 }
 
-
-
 /* Footer */
 footer {
   margin: 40px 0px;
 }
 
-/* Tablette */
+/* ===== RESPONSIVE - TABLETTE ===== */
 @media (max-width: 1024px) {
   
   h1{
@@ -658,8 +730,8 @@ footer {
   }
 
   .nav-wrapper img {
-  width: 64px;
-  padding: 0 24px;
+    width: 64px;
+    padding: 0 24px;
   }
     
   #microview-container{
@@ -674,12 +746,26 @@ footer {
     font-size: 24px;
   }
 
+  /* Plan - Tablette */
+  .plan-container {
+    height: 500px;
+  }
+
+  .plan-container::before {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .zoom-controls {
+    bottom: 16px;
+    right: 16px;
+  }
 }
 
-/* Mobile */
+/* ===== RESPONSIVE - MOBILE ===== */
 @media (max-width: 768px) {
   
-   h1{
+  h1{
     font-size: 56px;
   }
 
@@ -701,8 +787,8 @@ footer {
   }
 
   .nav-wrapper img {
-  width: 56px;
-  padding: 0 24px;
+    width: 56px;
+    padding: 0 24px;
   }
 
   #list-container{
@@ -806,4 +892,56 @@ footer {
     display: none;
   }
 
+  /* Plan - Mobile optimisé */
+  .plan-container {
+    width: 100%;
+    height: 400px;
+    border-radius: 8px;
+  }
+
+  .plan-container::before {
+    content: 'Pincez pour zoomer • Glissez pour déplacer • Double-tap pour réinitialiser';
+    font-size: 11px;
+    padding: 6px 10px;
+    top: 12px;
+  }
+
+  .zoom-controls {
+    bottom: 12px;
+    right: 12px;
+    padding: 6px;
+    gap: 6px;
+  }
+
+  .zoom-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .zoom-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Très petits écrans */
+@media (max-width: 480px) {
+  .plan-container {
+    height: 350px;
+  }
+
+  .plan-container::before {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+
+  .zoom-controls {
+    bottom: 10px;
+    right: 10px;
+  }
+
+  .zoom-btn {
+    width: 32px;
+    height: 32px;
+  }
 }
