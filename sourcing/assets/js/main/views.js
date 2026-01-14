@@ -389,6 +389,7 @@ const renderPlanView = (supplierData) => {
         if (planGroup) {
           Array.from(planGroup.children).forEach(child => {
             child.style.opacity = '1';
+            child.style.filter = '';
           });
         }
       }
@@ -563,8 +564,14 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
   }
   container.dataset.zoomInitialized = 'true';
   
-  // CRITIQUE: Désactiver la transition CSS qui cause le flickering
+  // Configuration initiale du SVG pour un rendu optimal
   svgElement.style.transition = 'none';
+  svgElement.style.transformOrigin = 'top left';
+  
+  // Obtenir les dimensions originales du viewBox
+  const viewBox = svgElement.viewBox.baseVal;
+  const originalWidth = viewBox.width;
+  const originalHeight = viewBox.height;
   
   let scale = 1;
   let translateX = 0;
@@ -575,6 +582,10 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
   let startTranslateX = 0;
   let startTranslateY = 0;
   
+  const MIN_SCALE = 1;
+  const MAX_SCALE = 5;
+  const ZOOM_SPEED = 0.1;
+  
   const resetTransform = () => {
     scale = 1;
     translateX = 0;
@@ -583,21 +594,31 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
   };
   
   const updateTransform = () => {
-    // translate3d pour GPU, pas translate
-    svgElement.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
-    svgElement.style.transformOrigin = '0 0';
+    // Utiliser viewBox au lieu de transform scale pour éviter la pixelisation
+    const newWidth = originalWidth / scale;
+    const newHeight = originalHeight / scale;
+    
+    // Calculer les coordonnées viewBox en fonction de la position
+    const viewBoxX = -translateX * (originalWidth / (container.getBoundingClientRect().width * scale));
+    const viewBoxY = -translateY * (originalHeight / (container.getBoundingClientRect().height * scale));
+    
+    svgElement.setAttribute('viewBox', `${viewBoxX} ${viewBoxY} ${newWidth} ${newHeight}`);
   };
   
   const constrainTranslation = () => {
     const containerRect = container.getBoundingClientRect();
-    const svgRect = svgElement.getBoundingClientRect();
-
-    const minTranslateX = Math.min(0, containerRect.width - svgRect.width);
+    
+    // Calculer les limites en fonction du viewBox actuel
+    const svgDisplayWidth = containerRect.width;
+    const svgDisplayHeight = containerRect.height;
+    
+    // Limites de translation
     const maxTranslateX = 0;
-    const minTranslateY = Math.min(0, containerRect.height - svgRect.height);
+    const minTranslateX = svgDisplayWidth - (svgDisplayWidth * scale);
     const maxTranslateY = 0;
+    const minTranslateY = svgDisplayHeight - (svgDisplayHeight * scale);
 
-    const tolerance = 200;
+    const tolerance = 50;
     
     translateX = Math.min(maxTranslateX + tolerance, Math.max(minTranslateX - tolerance, translateX));
     translateY = Math.min(maxTranslateY + tolerance, Math.max(minTranslateY - tolerance, translateY));
@@ -613,22 +634,25 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
     
-    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-    const newScale = Math.max(1, Math.min(5, scale * zoomFactor));
+    const delta = -Math.sign(e.deltaY);
+    const zoomFactor = 1 + (delta * ZOOM_SPEED);
+    const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale * zoomFactor));
     
-    const svgPointX = (mouseX - translateX) / scale;
-    const svgPointY = (mouseY - translateY) / scale;
-    
-    scale = newScale;
-    translateX = mouseX - svgPointX * scale;
-    translateY = mouseY - svgPointY * scale;
+    if (newScale !== scale) {
+      const svgPointX = (mouseX - translateX) / scale;
+      const svgPointY = (mouseY - translateY) / scale;
+      
+      scale = newScale;
+      translateX = mouseX - svgPointX * scale;
+      translateY = mouseY - svgPointY * scale;
 
-    constrainTranslation();
-    updateTransform();
+      constrainTranslation();
+      updateTransform();
+    }
   }, { passive: false });
   
   // Mouse drag
-  container.addEventListener('mousedown', (e) => {
+  const handleMouseDown = (e) => {
     if (e.button === 0) {
       isDragging = true;
       startX = e.clientX;
@@ -636,36 +660,35 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
       startTranslateX = translateX;
       startTranslateY = translateY;
       container.style.cursor = 'grabbing';
+      e.preventDefault();
     }
-  });
+  };
   
-  container.addEventListener('mousemove', (e) => {
+  const handleMouseMove = (e) => {
     if (isDragging) {
       translateX = startTranslateX + (e.clientX - startX);
       translateY = startTranslateY + (e.clientY - startY);
       updateTransform();
     }
-  });
+  };
   
-  container.addEventListener('mouseup', () => {
+  const handleMouseUp = () => {
     if (isDragging) {
       isDragging = false;
       container.style.cursor = 'grab';
       constrainTranslation();
       updateTransform();
     }
-  });
+  };
   
-  container.addEventListener('mouseleave', () => {
-    if (isDragging) {
-      isDragging = false;
-      container.style.cursor = 'grab';
-      constrainTranslation();
-      updateTransform();
-    }
-  });
+  container.addEventListener('mousedown', handleMouseDown);
+  container.addEventListener('mousemove', handleMouseMove);
+  container.addEventListener('mouseup', handleMouseUp);
+  container.addEventListener('mouseleave', handleMouseUp);
   
-  container.addEventListener('dblclick', () => {
+  // Double click to reset
+  container.addEventListener('dblclick', (e) => {
+    e.preventDefault();
     resetTransform();
   });
   
@@ -677,7 +700,6 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
   let touchStartCenterX = 0;
   let touchStartCenterY = 0;
   let lastTapTime = 0;
-  let tapCount = 0;
 
   container.addEventListener('touchstart', (e) => {
     if (e.touches.length === 1) {
@@ -685,28 +707,28 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
       const timeDiff = currentTime - lastTapTime;
 
       if (timeDiff < 300 && timeDiff > 0) {
-        tapCount++;
-        if (tapCount === 2) {
-          const rect = container.getBoundingClientRect();
-          const centerX = rect.width / 2;
-          const centerY = rect.height / 2;
+        e.preventDefault();
+        const rect = container.getBoundingClientRect();
+        const touch = e.touches[0];
+        const touchX = touch.clientX - rect.left;
+        const touchY = touch.clientY - rect.top;
 
-          const newScale = scale >= 2 ? 1 : 2;
-
-          const svgPointX = (centerX - translateX) / scale;
-          const svgPointY = (centerY - translateY) / scale;
+        if (scale > MIN_SCALE) {
+          resetTransform();
+        } else {
+          const newScale = 2;
+          const svgPointX = (touchX - translateX) / scale;
+          const svgPointY = (touchY - translateY) / scale;
 
           scale = newScale;
-          translateX = centerX - svgPointX * scale;
-          translateY = centerY - svgPointY * scale;
+          translateX = touchX - svgPointX * scale;
+          translateY = touchY - svgPointY * scale;
 
           constrainTranslation();
           updateTransform();
-          tapCount = 0;
-          return;
         }
-      } else {
-        tapCount = 1;
+        lastTapTime = 0;
+        return;
       }
       lastTapTime = currentTime;
 
@@ -716,6 +738,7 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
       startTranslateX = translateX;
       startTranslateY = translateY;
     } else if (e.touches.length === 2) {
+      e.preventDefault();
       isDragging = false;
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
@@ -729,23 +752,23 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
       touchStartCenterX = (touch1.clientX + touch2.clientX) / 2;
       touchStartCenterY = (touch1.clientY + touch2.clientY) / 2;
     }
-  }, { passive: true });
+  }, { passive: false });
   
   container.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-    
     if (e.touches.length === 1 && isDragging) {
+      e.preventDefault();
       translateX = startTranslateX + (e.touches[0].clientX - startX);
       translateY = startTranslateY + (e.touches[0].clientY - startY);
       updateTransform();
     } else if (e.touches.length === 2) {
+      e.preventDefault();
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
       const distance = Math.hypot(
         touch2.clientX - touch1.clientX,
         touch2.clientY - touch1.clientY
       );
-      const newScale = Math.max(1, Math.min(5, touchStartScale * (distance / touchStartDistance)));
+      const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, touchStartScale * (distance / touchStartDistance)));
       
       const rect = container.getBoundingClientRect();
       const centerX = touchStartCenterX - rect.left;
@@ -762,7 +785,7 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
     }
   }, { passive: false });
   
-  container.addEventListener('touchend', () => {
+  const handleTouchEnd = () => {
     if (isDragging) {
       isDragging = false;
       constrainTranslation();
@@ -771,15 +794,83 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
       constrainTranslation();
       updateTransform();
     }
-  }, { passive: true });
+  };
   
-  container.addEventListener('touchcancel', () => {
-    isDragging = false;
-    constrainTranslation();
-    updateTransform();
-  }, { passive: true });
+  container.addEventListener('touchend', handleTouchEnd, { passive: true });
+  container.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+  
+  // Boutons de contrôle
+  createZoomControls(container, {
+    zoomIn: () => {
+      const rect = container.getBoundingClientRect();
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      const newScale = Math.min(MAX_SCALE, scale * 1.3);
+      const svgPointX = (centerX - translateX) / scale;
+      const svgPointY = (centerY - translateY) / scale;
+      
+      scale = newScale;
+      translateX = centerX - svgPointX * scale;
+      translateY = centerY - svgPointY * scale;
+      
+      constrainTranslation();
+      updateTransform();
+    },
+    zoomOut: () => {
+      const rect = container.getBoundingClientRect();
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      const newScale = Math.max(MIN_SCALE, scale / 1.3);
+      const svgPointX = (centerX - translateX) / scale;
+      const svgPointY = (centerY - translateY) / scale;
+      
+      scale = newScale;
+      translateX = centerX - svgPointX * scale;
+      translateY = centerY - svgPointY * scale;
+      
+      constrainTranslation();
+      updateTransform();
+    },
+    reset: resetTransform
+  });
 };
 
+// Création des contrôles de zoom
+const createZoomControls = (container, actions) => {
+  // Vérifier si les contrôles existent déjà
+  if (container.querySelector('.zoom-controls')) {
+    return;
+  }
+
+  const controls = document.createElement('div');
+  controls.className = 'zoom-controls';
+  
+  const zoomInBtn = document.createElement('button');
+  zoomInBtn.className = 'zoom-btn zoom-in';
+  zoomInBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  zoomInBtn.setAttribute('aria-label', 'Zoom in');
+  zoomInBtn.onclick = actions.zoomIn;
+  
+  const zoomOutBtn = document.createElement('button');
+  zoomOutBtn.className = 'zoom-btn zoom-out';
+  zoomOutBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  zoomOutBtn.setAttribute('aria-label', 'Zoom out');
+  zoomOutBtn.onclick = actions.zoomOut;
+  
+  const resetBtn = document.createElement('button');
+  resetBtn.className = 'zoom-btn zoom-reset';
+  resetBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10C4 6.686 6.686 4 10 4C13.314 4 16 6.686 16 10C16 13.314 13.314 16 10 16C6.686 16 4 13.314 4 10Z" stroke="currentColor" stroke-width="2"/><path d="M10 7V10L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  resetBtn.setAttribute('aria-label', 'Reset zoom');
+  resetBtn.onclick = actions.reset;
+  
+  controls.appendChild(zoomInBtn);
+  controls.appendChild(zoomOutBtn);
+  controls.appendChild(resetBtn);
+  
+  container.appendChild(controls);
+};
 
 DOM.filterDropdownActivator.forEach(activator => {
   const container = activator.nextElementSibling;
