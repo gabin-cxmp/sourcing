@@ -415,16 +415,15 @@ const renderPlanView = (supplierData) => {
   } else if (standStr.startsWith('7.3')) {
     floorPrefix = '7.3';
     targetContainer = DOM.secondFloorPlanContainer;
-  }
-  
-  // If no matching floor, don't show any plan
-  if (!targetContainer) {
-    return;
+  } else {
+    // If stand doesn't start with 7.1, 7.2 or 7.3, show first floor plan
+    floorPrefix = '7.2';
+    targetContainer = DOM.firstFloorPlanContainer;
   }
   
   // Show the target container
   targetContainer.style.display = 'block';
-  
+
   // Get the plan container (zoom wrapper)
   const planContainer = targetContainer.querySelector('.plan-container');
   svgElement = targetContainer.querySelector('svg');
@@ -435,47 +434,77 @@ const renderPlanView = (supplierData) => {
   // Initialize zoom and pan functionality
   initializeSvgZoomAndPan(svgElement, planContainer);
   
-  // Extract the stand identifier after the floor prefix (e.g., "F18" from "7.1F18" or "7.1 F18")
-  const standIdentifier = standStr.replace(/^7\.\d[\s\-]*/i, '').trim();
+  // Extract the stand identifier(s)
+  let standIdentifier;
+  if (standStr.startsWith('7.1') || standStr.startsWith('7.2') || standStr.startsWith('7.3')) {
+    // For standard stands, extract identifier after floor prefix
+    standIdentifier = standStr.replace(/^7\.\d[\s\-]*/i, '').trim();
+  } else {
+    // For non-standard stands, use the full stand name as identifier
+    standIdentifier = standStr;
+  }
+
   if (!standIdentifier) {
     return;
   }
-  
-  // Find the group that contains this stand identifier
+
+  // Split by slash to handle multiple stands
+  const standParts = standIdentifier.split('/').map(part => part.trim()).filter(part => part);
+
+  // Find all groups that match any of the stand identifiers
   const allGroups = svgElement.querySelectorAll('g[id]');
-  let targetGroup = null;
-  
-  for (const group of allGroups) {
-    const groupId = group.getAttribute('id');
-    if (!groupId || groupId === 'Plan' || groupId === floorPrefix || groupId === 'Legende') {
-      continue;
-    }
-    
-    // Check if the group ID contains the stand identifier
-    // Group IDs are space-separated like "F18 G17 F14 F12 G11"
-    const standIds = groupId.split(/\s+/);
-    if (standIds.includes(standIdentifier)) {
-      targetGroup = group;
-      break;
+  const targetGroups = [];
+
+  for (const standPart of standParts) {
+    for (const group of allGroups) {
+      const groupId = group.getAttribute('id');
+      if (!groupId || groupId === 'Plan' || groupId === floorPrefix || groupId === 'Legende') {
+        continue;
+      }
+
+      // Check if the group ID contains the stand identifier
+      // Group IDs are space-separated like "F18 G17 F14 F12 G11"
+      const standIds = groupId.split(/\s+/);
+      if (standIds.includes(standPart)) {
+        targetGroups.push(group);
+        break; // Found a match for this stand part
+      }
+
+      // For non-standard stands, also check if group ID exactly matches the stand identifier
+      if (groupId === standPart) {
+        targetGroups.push(group);
+        break;
+      }
     }
   }
-  
-  // If we found the target group, highlight it and dim the rest of the Plan group
-  if (targetGroup) {
+
+  // If no target groups found, return
+  if (targetGroups.length === 0) {
+    console.log('No target groups found for stand parts:', standParts);
+    return;
+  }
+
+
+  // If we found target groups, highlight them and dim the rest of the Plan group
+  if (targetGroups.length > 0) {
+    console.log('Highlighting target groups for:', supplierData['Supplier Name']);
     const planGroup = svgElement.querySelector('g#Plan');
     if (planGroup) {
-      // Get bounding box of the target group
-      let targetBox = null;
-      try {
-        targetBox = targetGroup.getBBox();
-      } catch (e) {
-        console.warn('Could not get bounding box for target group', e);
-      }
-      
-      if (targetBox) {
+      // Get bounding boxes of all target groups
+      const targetBoxes = [];
+      targetGroups.forEach(targetGroup => {
+        try {
+          const box = targetGroup.getBBox();
+          if (box) targetBoxes.push(box);
+        } catch (e) {
+          console.warn('Could not get bounding box for target group', e);
+        }
+      });
+
+      if (targetBoxes.length > 0) {
         // Get all direct children of the Plan group
         const planChildren = Array.from(planGroup.children);
-        
+
         planChildren.forEach(child => {
           // Skip if this is the borders group
           if (child.getAttribute && child.getAttribute('id') === 'borders') {
@@ -487,16 +516,22 @@ const renderPlanView = (supplierData) => {
             childBox = child.getBBox ? child.getBBox() : null;
 
             if (childBox) {
-              // Check if the child element overlaps with the target group
-              const overlapX = Math.max(0, Math.min(childBox.x + childBox.width, targetBox.x + targetBox.width) - Math.max(childBox.x, targetBox.x));
-              const overlapY = Math.max(0, Math.min(childBox.y + childBox.height, targetBox.y + targetBox.height) - Math.max(childBox.y, targetBox.y));
-              const overlapArea = overlapX * overlapY;
-              const childArea = childBox.width * childBox.height;
+              // Check if the child element overlaps with any of the target groups
+              let isInAnyGroup = false;
+              for (const targetBox of targetBoxes) {
+                const overlapX = Math.max(0, Math.min(childBox.x + childBox.width, targetBox.x + targetBox.width) - Math.max(childBox.x, targetBox.x));
+                const overlapY = Math.max(0, Math.min(childBox.y + childBox.height, targetBox.y + targetBox.height) - Math.max(childBox.y, targetBox.y));
+                const overlapArea = overlapX * overlapY;
+                const childArea = childBox.width * childBox.height;
 
-              // Only keep opacity 1 if there's significant overlap (at least 50% of the child element is within the target)
-              const isInGroup = overlapArea > 0 && childArea > 0 && (overlapArea / childArea) > 0.5;
+                // Only keep opacity 1 if there's significant overlap (at least 50% of the child element is within the target)
+                if (overlapArea > 0 && childArea > 0 && (overlapArea / childArea) > 0.5) {
+                  isInAnyGroup = true;
+                  break;
+                }
+              }
 
-              child.style.opacity = isInGroup ? '1' : '0.2';
+              child.style.opacity = isInAnyGroup ? '1' : '0.2';
             } else {
               // If we can't get bounding box, dim it
               child.style.opacity = '0.2';
@@ -507,18 +542,20 @@ const renderPlanView = (supplierData) => {
           }
         });
       } else {
-        // If we can't get target box, dim all plan elements
+        // If we can't get target boxes, dim all plan elements
         const planChildren = Array.from(planGroup.children);
         planChildren.forEach(child => {
           child.style.opacity = '0.2';
         });
       }
     }
-    
-    // Add drop shadow to the target group to make it stand out
-    targetGroup.style.filter = 'drop-shadow(0px 2px 6px rgba(0,0,0,0.25))';
+
+    // Add drop shadow to all target groups to make them stand out
+    targetGroups.forEach(targetGroup => {
+      targetGroup.style.filter = 'drop-shadow(0px 2px 6px rgba(0,0,0,0.25))';
+    });
   }
-};
+}
 
 const initializeSvgZoomAndPan = (svgElement, container) => {
   // Check if already initialized to avoid duplicate event listeners
@@ -576,7 +613,19 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
     // Adjust translate to zoom towards mouse position
     translateX = mouseX - svgPointX * scale;
     translateY = mouseY - svgPointY * scale;
-    
+
+    // Constrain translation after zoom
+    const containerRect = container.getBoundingClientRect();
+    const svgRect = svgElement.getBoundingClientRect();
+
+    const minTranslateX = Math.min(0, containerRect.width - svgRect.width);
+    const maxTranslateX = 0;
+    const minTranslateY = Math.min(0, containerRect.height - svgRect.height);
+    const maxTranslateY = 0;
+
+    translateX = Math.min(maxTranslateX, Math.max(minTranslateX, translateX));
+    translateY = Math.min(maxTranslateY, Math.max(minTranslateY, translateY));
+
     updateTransform();
   }, { passive: false });
   
@@ -596,6 +645,25 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
     if (isDragging) {
       translateX = startTranslateX + (e.clientX - startX);
       translateY = startTranslateY + (e.clientY - startY);
+
+      // Constrain translation to keep SVG within container bounds
+      const containerRect = container.getBoundingClientRect();
+      const svgRect = svgElement.getBoundingClientRect();
+
+      // SVG bounds in scaled coordinates
+      const svgScaledWidth = svgRect.width;
+      const svgScaledHeight = svgRect.height;
+
+      // Calculate bounds to keep SVG visible within container
+      const minTranslateX = Math.min(0, containerRect.width - svgScaledWidth);
+      const maxTranslateX = 0;
+      const minTranslateY = Math.min(0, containerRect.height - svgScaledHeight);
+      const maxTranslateY = 0;
+
+      // Apply constraints
+      translateX = Math.min(maxTranslateX, Math.max(minTranslateX, translateX));
+      translateY = Math.min(maxTranslateY, Math.max(minTranslateY, translateY));
+
       updateTransform();
     }
   });
@@ -675,7 +743,19 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
       scale = newScale;
       translateX = centerX - svgPointX * scale;
       translateY = centerY - svgPointY * scale;
-      
+
+      // Constrain translation after zoom/pinch
+      const containerRect = zoomContainer.getBoundingClientRect();
+      const svgRect = svgElement.getBoundingClientRect();
+
+      const minTranslateX = Math.min(0, containerRect.width - svgRect.width);
+      const maxTranslateX = 0;
+      const minTranslateY = Math.min(0, containerRect.height - svgRect.height);
+      const maxTranslateY = 0;
+
+      translateX = Math.min(maxTranslateX, Math.max(minTranslateX, translateX));
+      translateY = Math.min(maxTranslateY, Math.max(minTranslateY, translateY));
+
       updateTransform();
     }
   });
