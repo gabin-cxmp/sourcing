@@ -660,9 +660,10 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
       const minTranslateY = Math.min(0, containerRect.height - svgScaledHeight);
       const maxTranslateY = 0;
 
-      // Apply constraints
-      translateX = Math.min(maxTranslateX, Math.max(minTranslateX, translateX));
-      translateY = Math.min(maxTranslateY, Math.max(minTranslateY, translateY));
+      // Apply constraints with tolerance to prevent disappearing
+      const tolerance = 50;
+      translateX = Math.min(maxTranslateX + tolerance, Math.max(minTranslateX - tolerance, translateX));
+      translateY = Math.min(maxTranslateY + tolerance, Math.max(minTranslateY - tolerance, translateY));
 
       updateTransform();
     }
@@ -726,8 +727,10 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
           const minTranslateY = Math.min(0, containerRect.height - svgRect.height);
           const maxTranslateY = 0;
 
-          translateX = Math.min(maxTranslateX, Math.max(minTranslateX, translateX));
-          translateY = Math.min(maxTranslateY, Math.max(minTranslateY, translateY));
+          // Add tolerance to prevent SVG from disappearing during double tap
+          const tolerance = 100;
+          translateX = Math.min(maxTranslateX + tolerance, Math.max(minTranslateX - tolerance, translateX));
+          translateY = Math.min(maxTranslateY + tolerance, Math.max(minTranslateY - tolerance, translateY));
 
           updateTransform();
           tapCount = 0;
@@ -768,7 +771,7 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
       translateX = startTranslateX + (e.touches[0].clientX - startX);
       translateY = startTranslateY + (e.touches[0].clientY - startY);
 
-      // Constrain translation
+      // Constrain translation with tolerance to prevent disappearing
       const containerRect = container.getBoundingClientRect();
       const svgRect = svgElement.getBoundingClientRect();
       const minTranslateX = Math.min(0, containerRect.width - svgRect.width);
@@ -776,8 +779,10 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
       const minTranslateY = Math.min(0, containerRect.height - svgRect.height);
       const maxTranslateY = 0;
 
-      translateX = Math.min(maxTranslateX, Math.max(minTranslateX, translateX));
-      translateY = Math.min(maxTranslateY, Math.max(minTranslateY, translateY));
+      // Add tolerance to prevent SVG from disappearing during drag
+      const tolerance = 100;
+      translateX = Math.min(maxTranslateX + tolerance, Math.max(minTranslateX - tolerance, translateX));
+      translateY = Math.min(maxTranslateY + tolerance, Math.max(minTranslateY - tolerance, translateY));
 
       updateTransform();
     } else if (e.touches.length === 2) {
@@ -810,8 +815,10 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
       const minTranslateY = Math.min(0, containerRect.height - svgRect.height);
       const maxTranslateY = 0;
 
-      translateX = Math.min(maxTranslateX, Math.max(minTranslateX, translateX));
-      translateY = Math.min(maxTranslateY, Math.max(minTranslateY, translateY));
+      // Add tolerance to prevent SVG from disappearing during zoom/pinch
+      const tolerance = 100;
+      translateX = Math.min(maxTranslateX + tolerance, Math.max(minTranslateX - tolerance, translateX));
+      translateY = Math.min(maxTranslateY + tolerance, Math.max(minTranslateY - tolerance, translateY));
 
       updateTransform();
     }
