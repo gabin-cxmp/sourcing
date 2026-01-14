@@ -434,6 +434,13 @@ input::placeholder {
   font-weight: 500;
 }
 
+.microview-title-smaller{
+  font-size: 32px;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+
 .focus-and-category-microview{
   margin-top : 32px;
   display: flex;
@@ -477,6 +484,62 @@ input::placeholder {
   color: #8E8E8E;
   font-size: 14px;
   letter-spacing: 8%;
+}
+
+/* Plan containers */
+.microview_plan-wrapper {
+  margin-top: 40px;
+  width: 100%;
+}
+
+#ground-floor_plan-container,
+#first-floor_plan-container,
+#second-floor_plan-container {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.plan-container {
+  width: 100%;
+  overflow: hidden;
+  /*border: 1px solid #CDD5DF;*/
+  border-radius: 8px;
+  background: #fff;
+  cursor: grab;
+  position: relative;
+}
+
+.plan-container:active {
+  cursor: grabbing;
+}
+
+#ground-floor_plan-container svg,
+#first-floor_plan-container svg,
+#second-floor_plan-container svg {
+  max-width: 50%;
+  height: auto;
+  display: block;
+  transition: transform 0.1s ease-out;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Responsive SVG */
+@media (max-width: 768px) {
+  .plan-container {
+    overflow-x: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #ground-floor_plan-container svg,
+  #first-floor_plan-container svg,
+  #second-floor_plan-container svg {
+    max-width: 100%;
+    width: auto;
+  }
 }
 
 #microview-contact_button{
@@ -607,6 +670,10 @@ footer {
     font-size: 32px;
   }
 
+  .microview-title-smaller{
+    font-size: 24px;
+  }
+
 }
 
 /* Mobile */
@@ -711,6 +778,11 @@ footer {
 
   #microview-title{
     font-size: 24px;
+  }
+
+  .microview-title-smaller{
+    font-size : 20px;
+    margin-bottom: 16px;
   }
   
   #microview-contact_button{
