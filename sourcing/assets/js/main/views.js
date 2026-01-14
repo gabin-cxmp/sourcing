@@ -558,11 +558,13 @@ const renderPlanView = (supplierData) => {
 }
 
 const initializeSvgZoomAndPan = (svgElement, container) => {
-  // Check if already initialized to avoid duplicate event listeners
   if (container.dataset.zoomInitialized === 'true') {
     return;
   }
   container.dataset.zoomInitialized = 'true';
+  
+  // CRITIQUE: Désactiver la transition CSS qui cause le flickering
+  svgElement.style.transition = 'none';
   
   let scale = 1;
   let translateX = 0;
@@ -573,7 +575,6 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
   let startTranslateX = 0;
   let startTranslateY = 0;
   
-  // Reset transform
   const resetTransform = () => {
     scale = 1;
     translateX = 0;
@@ -581,33 +582,27 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
     updateTransform();
   };
   
-  // Update SVG transform - version optimisée
   const updateTransform = () => {
-    svgElement.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    // translate3d pour GPU, pas translate
+    svgElement.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
     svgElement.style.transformOrigin = '0 0';
-    // Force GPU acceleration pour de meilleures performances sur mobile
-    svgElement.style.willChange = 'transform';
   };
   
-  // Fonction pour contraindre la translation - appelée seulement à la fin du mouvement
   const constrainTranslation = () => {
     const containerRect = container.getBoundingClientRect();
     const svgRect = svgElement.getBoundingClientRect();
 
-    // Calculer les limites en fonction du zoom actuel
     const minTranslateX = Math.min(0, containerRect.width - svgRect.width);
     const maxTranslateX = 0;
     const minTranslateY = Math.min(0, containerRect.height - svgRect.height);
     const maxTranslateY = 0;
 
-    // Tolérance dynamique basée sur le niveau de zoom
-    const tolerance = 50 + (scale - 1) * 100; // Plus de tolérance aux zooms élevés
+    const tolerance = 200;
     
     translateX = Math.min(maxTranslateX + tolerance, Math.max(minTranslateX - tolerance, translateX));
     translateY = Math.min(maxTranslateY + tolerance, Math.max(minTranslateY - tolerance, translateY));
   };
   
-  // Initialize transform
   updateTransform();
   
   // Wheel zoom
@@ -618,27 +613,21 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
     
-    // Calculate zoom factor
     const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
     const newScale = Math.max(1, Math.min(5, scale * zoomFactor));
     
-    // Calculate the point in SVG coordinates before zoom
     const svgPointX = (mouseX - translateX) / scale;
     const svgPointY = (mouseY - translateY) / scale;
     
-    // Update scale
     scale = newScale;
-    
-    // Adjust translate to zoom towards mouse position
     translateX = mouseX - svgPointX * scale;
     translateY = mouseY - svgPointY * scale;
 
-    // Contraindre après le zoom
     constrainTranslation();
     updateTransform();
   }, { passive: false });
   
-  // Mouse drag for panning
+  // Mouse drag
   container.addEventListener('mousedown', (e) => {
     if (e.button === 0) {
       isDragging = true;
@@ -676,12 +665,11 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
     }
   });
   
-  // Double click to reset
   container.addEventListener('dblclick', () => {
     resetTransform();
   });
   
-  // Touch support for mobile
+  // Touch support
   let touchStartDistance = 0;
   let touchStartScale = 1;
   let touchStartTranslateX = 0;
@@ -699,7 +687,6 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
       if (timeDiff < 300 && timeDiff > 0) {
         tapCount++;
         if (tapCount === 2) {
-          // Double tap zoom
           const rect = container.getBoundingClientRect();
           const centerX = rect.width / 2;
           const centerY = rect.height / 2;
@@ -723,14 +710,12 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
       }
       lastTapTime = currentTime;
 
-      // Start panning
       isDragging = true;
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
       startTranslateX = translateX;
       startTranslateY = translateY;
     } else if (e.touches.length === 2) {
-      // Two touches - pinch zoom
       isDragging = false;
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
@@ -750,14 +735,10 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
     e.preventDefault();
     
     if (e.touches.length === 1 && isDragging) {
-      // Single touch pan - PAS de contraintes pendant le mouvement
       translateX = startTranslateX + (e.touches[0].clientX - startX);
       translateY = startTranslateY + (e.touches[0].clientY - startY);
-      
-      // Mise à jour immédiate sans contraintes
       updateTransform();
     } else if (e.touches.length === 2) {
-      // Two touches - pinch zoom
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
       const distance = Math.hypot(
@@ -777,7 +758,6 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
       translateX = centerX - svgPointX * scale;
       translateY = centerY - svgPointY * scale;
 
-      // Mise à jour immédiate sans contraintes pendant le pinch
       updateTransform();
     }
   }, { passive: false });
@@ -785,19 +765,12 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
   container.addEventListener('touchend', () => {
     if (isDragging) {
       isDragging = false;
-      // Appliquer les contraintes SEULEMENT à la fin du mouvement
       constrainTranslation();
       updateTransform();
     } else {
-      // Pour le pinch zoom aussi
       constrainTranslation();
       updateTransform();
     }
-    
-    // Nettoyer willChange après un délai
-    setTimeout(() => {
-      svgElement.style.willChange = 'auto';
-    }, 300);
   }, { passive: true });
   
   container.addEventListener('touchcancel', () => {
