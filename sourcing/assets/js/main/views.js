@@ -223,6 +223,8 @@ export const renderMicroView = () => {
 
   renderMicroviewProductDetails(products);
 
+  renderPlanView(supplierData);
+
   if (supplierData['Email']) {
    // DOM.microviewContactButton.classList.remove('hidden');
   }
@@ -368,6 +370,319 @@ const renderMicroviewProductDetails = (products) => {
   updateField('microview-specification', 'Product specifications (if applicable)');
   updateField('microview-finishing', 'Product Finishing (if applicable)');
   updateField('microview-volumes', 'Production volumes');
+};
+
+const renderPlanView = (supplierData) => {
+  const standNumber = supplierData['Stand Number'];
+  
+  // Reset all plan containers - hide them all first
+  if (DOM.groundFloorPlanContainer) DOM.groundFloorPlanContainer.style.display = 'none';
+  if (DOM.firstFloorPlanContainer) DOM.firstFloorPlanContainer.style.display = 'none';
+  if (DOM.secondFloorPlanContainer) DOM.secondFloorPlanContainer.style.display = 'none';
+  
+  // Reset opacity on all Plan groups
+  [DOM.groundFloorPlanContainer, DOM.firstFloorPlanContainer, DOM.secondFloorPlanContainer].forEach(container => {
+    if (container) {
+      const svg = container.querySelector('svg');
+      if (svg) {
+        const planGroup = svg.querySelector('g#Plan');
+        if (planGroup) {
+          Array.from(planGroup.children).forEach(child => {
+            child.style.opacity = '1';
+          });
+        }
+      }
+    }
+  });
+  
+  // If no stand number, don't show any plan
+  if (!standNumber || standNumber.trim() === '') {
+    return;
+  }
+  
+  // Determine floor based on stand number prefix
+  const standStr = standNumber.trim();
+  let floorPrefix = null;
+  let targetContainer = null;
+  let svgElement = null;
+  
+  if (standStr.startsWith('7.1')) {
+    floorPrefix = '7.1';
+    targetContainer = DOM.groundFloorPlanContainer;
+  } else if (standStr.startsWith('7.2')) {
+    floorPrefix = '7.2';
+    targetContainer = DOM.firstFloorPlanContainer;
+  } else if (standStr.startsWith('7.3')) {
+    floorPrefix = '7.3';
+    targetContainer = DOM.secondFloorPlanContainer;
+  }
+  
+  // If no matching floor, don't show any plan
+  if (!targetContainer) {
+    return;
+  }
+  
+  // Show the target container
+  targetContainer.style.display = 'block';
+  
+  // Get the plan container (zoom wrapper)
+  const planContainer = targetContainer.querySelector('.plan-container');
+  svgElement = targetContainer.querySelector('svg');
+  if (!svgElement || !planContainer) {
+    return;
+  }
+
+  // Initialize zoom and pan functionality
+  initializeSvgZoomAndPan(svgElement, planContainer);
+  
+  // Extract the stand identifier after the floor prefix (e.g., "F18" from "7.1F18" or "7.1 F18")
+  const standIdentifier = standStr.replace(/^7\.\d[\s\-]*/i, '').trim();
+  if (!standIdentifier) {
+    return;
+  }
+  
+  // Find the group that contains this stand identifier
+  const allGroups = svgElement.querySelectorAll('g[id]');
+  let targetGroup = null;
+  
+  for (const group of allGroups) {
+    const groupId = group.getAttribute('id');
+    if (!groupId || groupId === 'Plan' || groupId === floorPrefix || groupId === 'Legende') {
+      continue;
+    }
+    
+    // Check if the group ID contains the stand identifier
+    // Group IDs are space-separated like "F18 G17 F14 F12 G11"
+    const standIds = groupId.split(/\s+/);
+    if (standIds.includes(standIdentifier)) {
+      targetGroup = group;
+      break;
+    }
+  }
+  
+  // If we found the target group, highlight it and dim the rest of the Plan group
+  if (targetGroup) {
+    const planGroup = svgElement.querySelector('g#Plan');
+    if (planGroup) {
+      // Get bounding box of the target group
+      let targetBox = null;
+      try {
+        targetBox = targetGroup.getBBox();
+      } catch (e) {
+        console.warn('Could not get bounding box for target group', e);
+      }
+      
+      if (targetBox) {
+        // Get all direct children of the Plan group
+        const planChildren = Array.from(planGroup.children);
+        
+        planChildren.forEach(child => {
+          // Skip if this is the borders group
+          if (child.getAttribute && child.getAttribute('id') === 'borders') {
+            return;
+          }
+
+          let childBox = null;
+          try {
+            childBox = child.getBBox ? child.getBBox() : null;
+
+            if (childBox) {
+              // Check if the child element overlaps with the target group
+              const overlapX = Math.max(0, Math.min(childBox.x + childBox.width, targetBox.x + targetBox.width) - Math.max(childBox.x, targetBox.x));
+              const overlapY = Math.max(0, Math.min(childBox.y + childBox.height, targetBox.y + targetBox.height) - Math.max(childBox.y, targetBox.y));
+              const overlapArea = overlapX * overlapY;
+              const childArea = childBox.width * childBox.height;
+
+              // Only keep opacity 1 if there's significant overlap (at least 50% of the child element is within the target)
+              const isInGroup = overlapArea > 0 && childArea > 0 && (overlapArea / childArea) > 0.5;
+
+              child.style.opacity = isInGroup ? '1' : '0.2';
+            } else {
+              // If we can't get bounding box, dim it
+              child.style.opacity = '0.2';
+            }
+          } catch (e) {
+            // If there's an error, dim the element
+            child.style.opacity = '0.2';
+          }
+        });
+      } else {
+        // If we can't get target box, dim all plan elements
+        const planChildren = Array.from(planGroup.children);
+        planChildren.forEach(child => {
+          child.style.opacity = '0.2';
+        });
+      }
+    }
+    
+    // Add drop shadow to the target group to make it stand out
+    targetGroup.style.filter = 'drop-shadow(0px 2px 6px rgba(0,0,0,0.25))';
+  }
+};
+
+const initializeSvgZoomAndPan = (svgElement, container) => {
+  // Check if already initialized to avoid duplicate event listeners
+  if (container.dataset.zoomInitialized === 'true') {
+    return;
+  }
+  container.dataset.zoomInitialized = 'true';
+  
+  let scale = 1;
+  let translateX = 0;
+  let translateY = 0;
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+  let startTranslateX = 0;
+  let startTranslateY = 0;
+  
+  // Reset transform
+  const resetTransform = () => {
+    scale = 1;
+    translateX = 0;
+    translateY = 0;
+    updateTransform();
+  };
+  
+  // Update SVG transform
+  const updateTransform = () => {
+    const transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    svgElement.style.transform = transform;
+    svgElement.style.transformOrigin = '0 0';
+  };
+  
+  // Initialize transform
+  updateTransform();
+  
+  // Wheel zoom
+  container.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    
+    const rect = container.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
+    // Calculate zoom factor
+    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+    const newScale = Math.max(1, Math.min(5, scale * zoomFactor));
+    
+    // Calculate the point in SVG coordinates before zoom
+    const svgPointX = (mouseX - translateX) / scale;
+    const svgPointY = (mouseY - translateY) / scale;
+    
+    // Update scale
+    scale = newScale;
+    
+    // Adjust translate to zoom towards mouse position
+    translateX = mouseX - svgPointX * scale;
+    translateY = mouseY - svgPointY * scale;
+    
+    updateTransform();
+  }, { passive: false });
+  
+  // Mouse drag for panning
+  container.addEventListener('mousedown', (e) => {
+    if (e.button === 0) { // Left mouse button
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      startTranslateX = translateX;
+      startTranslateY = translateY;
+      container.style.cursor = 'grabbing';
+    }
+  });
+  
+  container.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      translateX = startTranslateX + (e.clientX - startX);
+      translateY = startTranslateY + (e.clientY - startY);
+      updateTransform();
+    }
+  });
+  
+  container.addEventListener('mouseup', () => {
+    isDragging = false;
+    container.style.cursor = 'grab';
+  });
+  
+  container.addEventListener('mouseleave', () => {
+    isDragging = false;
+    container.style.cursor = 'grab';
+  });
+  
+  // Double click to reset
+  container.addEventListener('dblclick', () => {
+    resetTransform();
+  });
+  
+  // Touch support for mobile
+  let touchStartDistance = 0;
+  let touchStartScale = 1;
+  let touchStartTranslateX = 0;
+  let touchStartTranslateY = 0;
+  let touchStartCenterX = 0;
+  let touchStartCenterY = 0;
+  
+  container.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      // Single touch - pan
+      isDragging = true;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      startTranslateX = translateX;
+      startTranslateY = translateY;
+    } else if (e.touches.length === 2) {
+      // Two touches - pinch zoom
+      isDragging = false;
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      touchStartDistance = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      );
+      touchStartScale = scale;
+      touchStartTranslateX = translateX;
+      touchStartTranslateY = translateY;
+      touchStartCenterX = (touch1.clientX + touch2.clientX) / 2;
+      touchStartCenterY = (touch1.clientY + touch2.clientY) / 2;
+    }
+  });
+  
+  container.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (e.touches.length === 1 && isDragging) {
+      // Single touch - pan
+      translateX = startTranslateX + (e.touches[0].clientX - startX);
+      translateY = startTranslateY + (e.touches[0].clientY - startY);
+      updateTransform();
+    } else if (e.touches.length === 2) {
+      // Two touches - pinch zoom
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const distance = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      );
+      const newScale = Math.max(1, Math.min(5, touchStartScale * (distance / touchStartDistance)));
+      
+      const rect = container.getBoundingClientRect();
+      const centerX = touchStartCenterX - rect.left;
+      const centerY = touchStartCenterY - rect.top;
+      
+      const svgPointX = (centerX - touchStartTranslateX) / touchStartScale;
+      const svgPointY = (centerY - touchStartTranslateY) / touchStartScale;
+      
+      scale = newScale;
+      translateX = centerX - svgPointX * scale;
+      translateY = centerY - svgPointY * scale;
+      
+      updateTransform();
+    }
+  });
+  
+  container.addEventListener('touchend', () => {
+    isDragging = false;
+  });
 };
 
 

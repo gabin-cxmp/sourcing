@@ -32,6 +32,9 @@ export const DOM = {
   microviewContactButton: document.getElementById('microview-contact_button'),
   certificationsList: document.getElementById('certifications-list'),
   madeInContainer: document.querySelector('#made-in-fieldset'),
+  groundFloorPlanContainer: document.getElementById('ground-floor_plan-container'),
+  firstFloorPlanContainer: document.getElementById('first-floor_plan-container'),
+  secondFloorPlanContainer: document.getElementById('second-floor_plan-container'),
 };
 
 export const FILTER_CONFIG = {
