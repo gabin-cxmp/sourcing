@@ -34,7 +34,8 @@ export const getAvailableFiltersForType = (filterKey, config) => {
         const value = exhibitor[config.fieldName];
         if (value && value.trim()) availableCategories.add(value.trim());
       });
-      return config.possibleValues.filter(value => availableCategories.has(value));
+      // Return all available categories from data, not just predefined ones
+      return Array.from(availableCategories).sort();
 
     case 'computed':
       return config.filters.filter(filter => {
