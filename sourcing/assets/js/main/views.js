@@ -690,17 +690,62 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
   let touchStartTranslateY = 0;
   let touchStartCenterX = 0;
   let touchStartCenterY = 0;
-  
+  let lastTapTime = 0;
+  let tapCount = 0;
+
   container.addEventListener('touchstart', (e) => {
     if (e.touches.length === 1) {
-      // Single touch - pan
+      // Single touch - pan or double tap
+      const currentTime = Date.now();
+      const timeDiff = currentTime - lastTapTime;
+
+      if (timeDiff < 300 && timeDiff > 0) {
+        // Double tap detected
+        tapCount++;
+        if (tapCount === 2) {
+          // Zoom in/out on double tap
+          const rect = container.getBoundingClientRect();
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+
+          const newScale = scale >= 2 ? 1 : 2; // Toggle between 1x and 2x zoom
+
+          // Calculate zoom towards center
+          const svgPointX = (centerX - translateX) / scale;
+          const svgPointY = (centerY - translateY) / scale;
+
+          scale = newScale;
+          translateX = centerX - svgPointX * scale;
+          translateY = centerY - svgPointY * scale;
+
+          // Constrain translation
+          const containerRect = container.getBoundingClientRect();
+          const svgRect = svgElement.getBoundingClientRect();
+          const minTranslateX = Math.min(0, containerRect.width - svgRect.width);
+          const maxTranslateX = 0;
+          const minTranslateY = Math.min(0, containerRect.height - svgRect.height);
+          const maxTranslateY = 0;
+
+          translateX = Math.min(maxTranslateX, Math.max(minTranslateX, translateX));
+          translateY = Math.min(maxTranslateY, Math.max(minTranslateY, translateY));
+
+          updateTransform();
+          tapCount = 0;
+          return;
+        }
+      } else {
+        tapCount = 1;
+      }
+      lastTapTime = currentTime;
+
+      // Start panning
       isDragging = true;
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
       startTranslateX = translateX;
       startTranslateY = translateY;
     } else if (e.touches.length === 2) {
-      // Two touches - pinch zoom
+      // Two touches - pinch zoom (cancel any pending pan)
       isDragging = false;
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
@@ -722,6 +767,18 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
       // Single touch - pan
       translateX = startTranslateX + (e.touches[0].clientX - startX);
       translateY = startTranslateY + (e.touches[0].clientY - startY);
+
+      // Constrain translation
+      const containerRect = container.getBoundingClientRect();
+      const svgRect = svgElement.getBoundingClientRect();
+      const minTranslateX = Math.min(0, containerRect.width - svgRect.width);
+      const maxTranslateX = 0;
+      const minTranslateY = Math.min(0, containerRect.height - svgRect.height);
+      const maxTranslateY = 0;
+
+      translateX = Math.min(maxTranslateX, Math.max(minTranslateX, translateX));
+      translateY = Math.min(maxTranslateY, Math.max(minTranslateY, translateY));
+
       updateTransform();
     } else if (e.touches.length === 2) {
       // Two touches - pinch zoom
@@ -745,7 +802,7 @@ const initializeSvgZoomAndPan = (svgElement, container) => {
       translateY = centerY - svgPointY * scale;
 
       // Constrain translation after zoom/pinch
-      const containerRect = zoomContainer.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
       const svgRect = svgElement.getBoundingClientRect();
 
       const minTranslateX = Math.min(0, containerRect.width - svgRect.width);
